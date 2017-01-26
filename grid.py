@@ -253,7 +253,7 @@ while(running):
 				print "Map saved!"
 			if event.key == pygame.K_l:
 				# Load map: get filename
-				filename = raw_input("Save map to: ")
+				filename = raw_input("Load map from: ")
 				with open(filename,"r") as mapfile:
 					mapfile.write(str((start_x,start_y)))		# Write start
 					mapfile.write("\n")
@@ -270,7 +270,7 @@ while(running):
 						mapfile.write("\n")
 					
 					mapfile.close()
-				print "Map saved!"
+				print "Map loaded!"
 	
 	# Draw grid
 	drawScreen()
