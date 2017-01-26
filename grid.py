@@ -232,9 +232,25 @@ while(running):
 			if event.key == pygame.K_e:
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
 			if event.key == pygame.K_s:
-				# Save map
-				print "Save!"
-				f = open('map.map',w)
+				# Save map: get filename
+				filename = raw_input("Save map to: ")
+				with open(filename,"w") as mapfile:
+					mapfile.write(str((start_x,start_y)))		# Write start
+					mapfile.write("\n")
+					mapfile.write(str((goal_x,goal_y)))			# Write goal
+					mapfile.write("\n")
+					
+					for area in areacoordinates:				# Write hard to traverse area centers
+						mapfile.write(str((area[0],area[1])))		
+						mapfile.write("\n")
+					
+					for y in range(len(grid[x])):				# Write each cell
+						for x in range(len(grid)):					
+							mapfile.write(str(grid[x][y]))		
+						mapfile.write("\n")
+					
+					mapfile.close()
+				print "Map saved!"
 	
 	# Draw grid
 	drawScreen()
