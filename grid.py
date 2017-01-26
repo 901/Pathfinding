@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 from random import randint
+from ast import literal_eval as make_tuple
 
 # Initialize Screen
 pygame.init()
@@ -255,19 +256,20 @@ while(running):
 				# Load map: get filename
 				filename = raw_input("Load map from: ")
 				with open(filename,"r") as mapfile:
-					mapfile.write(str((start_x,start_y)))		# Write start
-					mapfile.write("\n")
-					mapfile.write(str((goal_x,goal_y)))			# Write goal
-					mapfile.write("\n")
+					new_start = make_tuple(mapfile.readline())
+					start_x = new_start[0]
+					start_y = new_start[1]
+					new_goal = make_tuple(mapfile.readline())
+					goal_x = new_goal[0]
+					goal_y = new_goal[1]
 					
-					for area in areacoordinates:				# Write hard to traverse area centers
-						mapfile.write(str((area[0],area[1])))		
-						mapfile.write("\n")
+					for i in range(8):
+						mapfile.readline()
 					
-					for y in range(len(grid[x])):				# Write each cell
+					for y in range(len(grid[x])):				# Read each cell
 						for x in range(len(grid)):					
-							mapfile.write(str(grid[x][y]))		
-						mapfile.write("\n")
+							grid[x][y] = mapfile.read(1)
+						mapfile.read(1)
 					
 					mapfile.close()
 				print "Map loaded!"
