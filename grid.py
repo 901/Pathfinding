@@ -151,17 +151,17 @@ def generateStartFinish():
 	x = randint(0,39)
 	y = randint(0,39)
 	if x>20:
-		x = GridCols-x
+		x = GridCols-x+20
 	if y>20:
-		y = GridRows-y
+		y = GridRows-y+20
 		
 	while grid[x][y]=='a' or grid[x][y]=='b':
 		x = randint(0,39)
 		y = randint(0,39)
 		if x>20:
-			x = GridCols-x
+			x = GridCols-x+20
 		if y>20:
-			y = GridRows-y
+			y = GridRows-y+20
 		
 	start_x = x
 	start_y = y
@@ -171,9 +171,9 @@ def generateStartFinish():
 		x = randint(0,39)
 		y = randint(0,39)
 		if x>20:
-			x = GridCols-x
+			x = GridCols-x+20
 		if y>20:
-			y = GridRows-y
+			y = GridRows-y+20
 
 	goal_x = x
 	goal_y = y
@@ -338,8 +338,11 @@ while(running):
 					goal_x = new_goal[0]
 					goal_y = new_goal[1]
 					
+					areacoordinates = []
+					
 					for i in range(8):
-						mapfile.readline()
+						new_area = make_tuple(mapfile.readline())
+						areacoordinates.append((new_area[0],new_area[1]))
 					
 					for y in range(len(grid[x])):				# Read each cell
 						for x in range(len(grid)):					
