@@ -128,12 +128,6 @@ def makeGrid():
 				else:
 					grid[cell[0]][cell[1]] = 'b'
 				
-				#print (cell[0],cell[1])
-				
-				#drawScreen()
-				#pygame.draw.rect(GameScreen, (255,0,0), (cell[0]*blockwidth,cell[1]*blockwidth,blockwidth,blockwidth), 0)
-				#pygame.display.update()
-				
 			riversmade += 1
 			
 	# Blocked cells
@@ -146,7 +140,7 @@ def makeGrid():
 		if grid[x][y]=='1' or grid[x][y]=='2':
 			grid[x][y] = '0'
 			blocked += 1
-
+	
 	# Return the coordinates of hard to traverse areas
 	return areacoordinates
 	
@@ -185,10 +179,34 @@ def generateStartFinish():
 	goal_y = y
 	
 	return start_x,start_y,goal_x,goal_y
+
+# Draw Grid
+def drawGrid(myGridSurface):
+	myGridSurface.fill((255,255,255))
+	for x in range(len(grid)):
+		for y in range(len(grid[x])):
+			if grid[x][y] == '0': 
+				pygame.draw.rect(myGridSurface, (40,40,40), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
+				pygame.draw.rect(myGridSurface, (40,40,40), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
+			elif grid[x][y] == '1': 
+				pygame.draw.rect(myGridSurface, (255,255,255), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
+				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
+			elif grid[x][y] == '2': 
+				pygame.draw.rect(myGridSurface, (200,200,200), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
+				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
+			elif grid[x][y] == 'a': 
+				pygame.draw.rect(myGridSurface, (130,170,255), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
+				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
+			elif grid[x][y] == 'b': 
+				pygame.draw.rect(myGridSurface, (70,90,220), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
+				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
+	
+	myGridSurface = myGridSurface.convert()
+	return myGridSurface
 	
 # Draw Screen
-def drawScreen():
-	GameScreen.fill((255,255,255))
+def drawScreen(GridSurface):
+	'''GameScreen.fill((255,255,255))
 	for x in range(len(grid)):
 		for y in range(len(grid[x])):
 			if grid[x][y] == '0': 
@@ -205,7 +223,9 @@ def drawScreen():
 				pygame.draw.rect(GameScreen, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
 			elif grid[x][y] == 'b': 
 				pygame.draw.rect(GameScreen, (70,90,220), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
-				pygame.draw.rect(GameScreen, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
+				pygame.draw.rect(GameScreen, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)'''
+	
+	GameScreen.blit(GridSurface,(0,0))
 	
 	pygame.draw.circle(GameScreen, (255,0,0), (start_x*blockwidth+blockwidth/2+10,start_y*blockwidth+blockwidth/2+10),blockwidth/2, 0)
 	pygame.draw.circle(GameScreen, (0,255,0), (goal_x*blockwidth+blockwidth/2+10,goal_y*blockwidth+blockwidth/2+10),blockwidth/2, 0)
@@ -220,18 +240,24 @@ def drawScreen():
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 30))
 	
 	label = myfont.render("Type: "+grid[cursor_x][cursor_y], 1, (0,0,0))
-	GameScreen.blit(label, (10+blockwidth*GridCols+30, 60))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 50))
+	
+	
+	label = myfont.render("Start: ("+str(start_x)+","+str(start_y)+")", 1, (0,0,0))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 80))
+	label = myfont.render("Goal: ("+str(goal_x)+","+str(goal_y)+")", 1, (0,0,0))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 100))
 	
 	label = myfont.render("Neighbors:", 1, (0,0,0))
-	GameScreen.blit(label, (10+blockwidth*GridCols+30, 120))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 130))
 	
-	draw_y = 142
+	draw_y = 150
 	neighbors = getNeighbors(cursor_x,cursor_y)
 	
 	for neighbor in neighbors:
 		label = myfont.render("("+str(neighbor[0])+","+str(neighbor[1])+")", 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, draw_y))
-		draw_y += 22
+		draw_y += 20
 	
 	pygame.display.update()
 
@@ -257,7 +283,11 @@ def getNeighbors(x,y):
 	
 # Main loop
 running = True
+
+GridSurface = pygame.Surface(GameScreen.get_size())
+
 areacoordinates = makeGrid()
+GridSurface = drawGrid(GridSurface)
 start_x,start_y,goal_x,goal_y = generateStartFinish()
 
 while(running):
@@ -271,6 +301,7 @@ while(running):
 			elif event.key == pygame.K_g:
 				grid = [['1' for y in range(GridRows)] for x in range(GridCols)]
 				areacoordinates = makeGrid()
+				GridSurface = drawGrid(GridSurface)
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
 				print "Generated new map"
 			elif event.key == pygame.K_e:
@@ -330,6 +361,6 @@ while(running):
 				if cursor_y+1 < GridRows:
 					cursor_y += 1
 		# Draw grid
-		drawScreen()
+		drawScreen(GridSurface)
 
 pygame.quit()
