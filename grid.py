@@ -156,8 +156,8 @@ def generateStartFinish():
 		y = GridRows-y
 		
 	while grid[x][y]=='a' or grid[x][y]=='b':
-		x = randint(0,GridCols-1)
-		y = randint(0,GridRows-1)
+		x = randint(0,39)
+		y = randint(0,39)
 		if x>20:
 			x = GridCols-x
 		if y>20:
@@ -168,8 +168,8 @@ def generateStartFinish():
 	
 	# Generate Finish
 	while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0' or math.sqrt((x-start_x)**2+(y-start_y)**2)<100:
-		x = randint(0,GridCols-1)
-		y = randint(0,GridRows-1)
+		x = randint(0,39)
+		y = randint(0,39)
 		if x>20:
 			x = GridCols-x
 		if y>20:
