@@ -347,6 +347,7 @@ while(running):
 						mapfile.read(1)
 					
 					mapfile.close()
+					GridSurface = drawGrid(GridSurface)
 				print "Map loaded!"
 			elif event.key == pygame.K_UP:
 				if cursor_y-1 >= 0:
