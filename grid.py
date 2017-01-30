@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 import math
 from random import randint
 from ast import literal_eval as make_tuple
@@ -310,7 +311,7 @@ while(running):
 			elif event.key == pygame.K_s:
 				# Save map: get filename
 				filename = raw_input("Save map to: ")
-				with open(filename,"w") as mapfile:
+				with open(os.path.join("./gen",filename),"w") as mapfile:
 					mapfile.write(str((start_x,start_y)))		# Write start
 					mapfile.write("\n")
 					mapfile.write(str((goal_x,goal_y)))			# Write goal
@@ -330,7 +331,7 @@ while(running):
 			elif event.key == pygame.K_l:
 				# Load map: get filename
 				filename = raw_input("Load map from: ")
-				with open(filename,"r") as mapfile:
+				with open(os.path.join("./gen",filename),"r") as mapfile: #changed to allow using /maps folder
 					new_start = make_tuple(mapfile.readline())
 					start_x = new_start[0]
 					start_y = new_start[1]
