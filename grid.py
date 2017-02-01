@@ -1,3 +1,4 @@
+import heapq
 import pygame
 import random
 import os
@@ -9,7 +10,7 @@ from ast import literal_eval as make_tuple
 pygame.init()
 myfont = pygame.font.SysFont("monospace", 15)
 
-blockwidth = 6				# Drawing dimensions of block
+blockwidth = 6  # Drawing dimensions of block
 GridCols = 160
 GridRows = 120
 GameScreen = pygame.display.set_mode((GridCols*blockwidth+200,GridRows*blockwidth+34))
@@ -147,7 +148,6 @@ def makeGrid():
 	
 # Generate Start and Finish
 def generateStartFinish():
-
 	# Generate Start
 	x = randint(0,39)
 	y = randint(0,39)
@@ -206,35 +206,17 @@ def drawGrid(myGridSurface):
 	return myGridSurface
 	
 # Draw Screen
-def drawScreen(GridSurface):
-	'''GameScreen.fill((255,255,255))
-	for x in range(len(grid)):
-		for y in range(len(grid[x])):
-			if grid[x][y] == '0': 
-				pygame.draw.rect(GameScreen, (40,40,40), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
-				pygame.draw.rect(GameScreen, (40,40,40), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == '1': 
-				pygame.draw.rect(GameScreen, (255,255,255), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
-				pygame.draw.rect(GameScreen, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == '2': 
-				pygame.draw.rect(GameScreen, (200,200,200), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
-				pygame.draw.rect(GameScreen, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == 'a': 
-				pygame.draw.rect(GameScreen, (130,170,255), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
-				pygame.draw.rect(GameScreen, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == 'b': 
-				pygame.draw.rect(GameScreen, (70,90,220), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
-				pygame.draw.rect(GameScreen, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)'''
+def drawScreen(GridSurface,closed_list,path):
 	
 	GameScreen.blit(GridSurface,(0,0))
 	
 	pygame.draw.circle(GameScreen, (255,0,0), (start_x*blockwidth+blockwidth/2+10,start_y*blockwidth+blockwidth/2+10),blockwidth/2, 0)
-	pygame.draw.circle(GameScreen, (0,255,0), (goal_x*blockwidth+blockwidth/2+10,goal_y*blockwidth+blockwidth/2+10),blockwidth/2, 0)
+	pygame.draw.circle(GameScreen, (0,0,255), (goal_x*blockwidth+blockwidth/2+10,goal_y*blockwidth+blockwidth/2+10),blockwidth/2, 0)
 	
 	pygame.draw.rect(GameScreen, (255,0,0), (cursor_x*blockwidth+9,cursor_y*blockwidth+9,blockwidth+2,blockwidth+2), 2)
 	
 	# Draw text
-	label = myfont.render("G = Generate Grid     E = New Start (R) and Goal (G)     S = Save Map     L = Load Map     Esc = Quit", 1, (0,0,0))
+	label = myfont.render("G = Generate Grid     E = New Start (R) and Goal (G)     S = Save Map     L = Load Map    Esc = Quit", 1, (0,0,0))
 	GameScreen.blit(label, (30, blockwidth*GridRows+14))
 	
 	label = myfont.render("("+str(cursor_x)+","+str(cursor_y)+")", 1, (0,0,0))
@@ -260,28 +242,169 @@ def drawScreen(GridSurface):
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, draw_y))
 		draw_y += 20
 	
+	# Draw Final Path and Closed List
+	for cell in closed_list:
+		pygame.draw.circle(GameScreen, (0,255,0), (cell[0]*blockwidth+blockwidth/2+10,cell[1]*blockwidth+blockwidth/2+10),blockwidth/4, 0)
+	for cell in path:
+		pygame.draw.circle(GameScreen, (255,0,0), (cell[0]*blockwidth+blockwidth/2+10,cell[1]*blockwidth+blockwidth/2+10),blockwidth/4, 0)
+	
 	pygame.display.update()
-
+	
 # Get neighbors of a cell
 def getNeighbors(x,y):
 	myneighbors = [(x-1,y-1),(x,y-1),(x+1,y-1),(x-1,y),(x+1,y),(x-1,y+1),(x,y+1),(x+1,y+1)]
-	
-	'''for neighbor in myneighbors:
-		if neighbor[0] < 0:							# Out of bounds left
-			myneighbors.remove(neighbor)
-		elif neighbor[0] >= GridCols:				# Out of bounds right
-			myneighbors.remove(neighbor)
-		elif neighbor[1] < 0:						# Out of bounds up
-			myneighbors.remove(neighbor)
-		elif neighbor[1] >= GridRows:				# Out of bounds down
-			myneighbors.remove(neighbor)
-		elif grid[neighbor[0]][neighbor[1]] == '0':	# Wall
-			myneighbors.remove(neighbor)'''
-			
 	myneighbors[:] = [neighbor for neighbor in myneighbors if neighbor[0]>=0 and neighbor[1]>=0 and neighbor[0]<GridCols and neighbor[1]<GridRows and grid[neighbor[0]][neighbor[1]] != '0']
 	
 	return myneighbors
+
+def cost(currx, curry, nextx, nexty):
+
+    #traverse between normal terrain
+    #print "The terrain here is: %s. Moving to %s" % (grid[currx][curry], grid[nextx][nexty])
+    if grid[currx][curry] == '1' and grid[nextx][nexty] =='1':
+        #diagonal between normal terrain
+        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+            return math.sqrt(2)
+        #horizontal or vertical
+        else:
+            return 1
+
+    #traverse into or between a hard-to-traverse cell
+    if grid[currx][curry] == '2' or grid[nextx][nexty] == '2':
+        #traverse diagonally between hard to traverse
+        if (grid[currx][curry] == '2' and grid[nextx][nexty] == '2') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+            return math.sqrt(8)
+        #moving diagonally between regular unblocked and hard to traverse
+        elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+            return 0.5 * (math.sqrt(8) + math.sqrt(2))
+        #traverse into or between hard to traverse and regular unblocked
+        elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1'):
+            return 1.5
+        #travel between two hard to traverse
+        else:
+            return 2
+
+    #highways - horizonatal or vertical between highways on unblocked cells
+    if grid[currx][curry] == 'a' and grid[nextx][nexty] == 'a':
+        return 0.25
+    
+    if grid[currx][curry] == 'b' and grid[currx][nexty] == 'b':
+        return 0.5
+    if (grid[currx][curry] == 'a' or grid[nextx][nexty] == 'a') and (grid[currx][curry] == 'b' or grid[nextx][nexty] == 'b'):
+        return 0.375
+
+    #disembark from an unblocked highway to an unblocked cell is double
+    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '1'):
+        #diagonal movement between unblocked highway and unblocked cell
+        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+            return 0.5*math.sqrt(2)
+        #horizontal or vertical movement 
+        else: 
+            return 0.5
+    #disembark from unblocked highway to hard to traverse cell or hard to traverse highway into unblocked cell
+    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '2') or (grid[currx][curry] == 'b' and grid[nextx][nexty] == '1'):
+        #diagonal between highway with unblocked cell and hard-to-traverse cell
+        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+            return 0.25 * (math.sqrt(8) + math.sqrt(2))
+        #horizontal or vertical between unblocked highway and hard to traverse cell
+        else: 
+            return 0.75
+    #disembark from hard to traverse highway into hard to traverse cell
+    if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2'):
+        #hard to traverse highway into hard to traverse cell diagonal
+        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+            return 0.5*math.sqrt(8)
+        else:
+            return 1
+    return 0
+
+# A* Stuff
+
+class Coordinate:
+	def __init__(self, x, y, parent):
+		self.x = x
+		self.y = y
+		self.parent = parent
+		
+	def get_x(self):
+		return self.x
+		
+	def get_y(self):
+		return self.y
 	
+	def get_parent(self):
+		return self.parent
+
+class PriorityQueue:
+	def __init__(self):
+		self.elements = []
+
+	def empty(self):
+		return len(self.elements) == 0
+
+	def put(self, item, priority):
+		heapq.heappush(self.elements, (priority, item))
+
+	def get(self):
+		return heapq.heappop(self.elements)[1]
+
+def heuristic(startx, starty, goalx, goaly, choice):
+	start = (startx, starty)
+	goal = (goalx, goaly)
+        #print "choice is: " + str(choice)
+	#print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
+	
+        if int(choice) == 1:
+            heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
+            heuristic *= 1.00156
+            return heuristic
+        if int(choice) == 2:
+            heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+            heuristic *= 1.00156
+            return heuristic
+        return 0
+
+def a_star_search(startx, starty, goalx, goaly, choice):
+	fringe = PriorityQueue()
+	start = Coordinate(startx, starty, None)
+	goal = (goalx, goaly)
+	fringe.put(start, 0)
+
+	closed_list = {}
+	cost_added = {}
+	final_path = []
+	closed_list[(start.get_x(),start.get_y())] = None
+	cost_added[(start.get_x(),start.get_y())] = 0
+
+	while not fringe.empty():
+		current = fringe.get()
+		#print "got current from fringe with x %d and y %d" % current[0], current[1]
+		if (current.get_x(),current.get_y()) == goal:
+			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+			
+			# Make a straight path from goal to start
+			PathNode = current
+			
+			while PathNode != None:
+				final_path.append((PathNode.get_x(),PathNode.get_y()))
+				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+				PathNode = PathNode.get_parent()
+		
+			break
+
+		for next in getNeighbors(current.get_x(), current.get_y()):
+			#print "current x %d current y %d" % current[0], current[1]
+			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
+			
+			if next not in cost_added or new_cost < cost_added[next]:
+			#if next not in closed_list or new_cost < cost_added[next]:
+				cost_added[next] = new_cost
+				priority = new_cost + heuristic(next[0], next[1], goal_x, goal_y, choice)
+				fringe.put(Coordinate(next[0],next[1],current), priority)
+				closed_list[next] = current
+	
+	return closed_list, cost_added, final_path
+
 # Main loop
 running = True
 
@@ -290,6 +413,8 @@ GridSurface = pygame.Surface(GameScreen.get_size())
 areacoordinates = makeGrid()
 GridSurface = drawGrid(GridSurface)
 start_x,start_y,goal_x,goal_y = generateStartFinish()
+final_path = []
+closed_list = []
 
 while(running):
 	# Get Input
@@ -304,9 +429,13 @@ while(running):
 				areacoordinates = makeGrid()
 				GridSurface = drawGrid(GridSurface)
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
+				final_path = []
+				closed_list = []
 				print "Generated new map"
 			elif event.key == pygame.K_e:
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
+				final_path = []
+				closed_list = []
 				print "Generated new start and finish points"
 			elif event.key == pygame.K_s:
 				# Save map: get filename
@@ -351,6 +480,8 @@ while(running):
 						mapfile.read(1)
 					
 					mapfile.close()
+                                        final_path = []
+                                        closed_list = []
 					GridSurface = drawGrid(GridSurface)
 				print "Map loaded!"
 			elif event.key == pygame.K_UP:
@@ -365,7 +496,16 @@ while(running):
 			elif event.key == pygame.K_DOWN:
 				if cursor_y+1 < GridRows:
 					cursor_y += 1
-		# Draw grid
-		drawScreen(GridSurface)
+			elif event.key == pygame.K_a:
+				#perform a* pathfinding
+                                choice = raw_input ("Enter (1) for manhattan distance, (2) for Euclidian distance: ")
+				closed_list, final_cost_added, final_path = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+				
+			'''elif event.key == pygame.K_w:
+				#perform weighted a* pathfinding
+			elif event.key == pygame.K_u:
+				#perform uniform cost pathfinding
+				# Draw grid'''
+		drawScreen(GridSurface,closed_list,final_path)
 
 pygame.quit()
