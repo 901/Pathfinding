@@ -206,7 +206,7 @@ def drawGrid(myGridSurface):
 	return myGridSurface
 	
 # Draw Screen
-def drawScreen(GridSurface,closed_list,path,pathcost):
+def drawScreen(GridSurface,closed_list,path,pathcost,mode):
 	
 	GameScreen.blit(GridSurface,(0,0))
 	
@@ -216,7 +216,7 @@ def drawScreen(GridSurface,closed_list,path,pathcost):
 	pygame.draw.rect(GameScreen, (255,0,0), (cursor_x*blockwidth+9,cursor_y*blockwidth+9,blockwidth+2,blockwidth+2), 2)
 	
 	# Draw text
-	label = myfont.render("G = Generate Grid     E = New Start (R) and Goal (G)     S = Save Map     L = Load Map    Esc = Quit", 1, (0,0,0))
+	label = myfont.render("G = New Grid | E = New Endpoints | U = Uniform Cost | A = A* Search | V = Draw Visited Nodes | S = Save | L = Load", 1, (0,0,0))
 	GameScreen.blit(label, (30, blockwidth*GridRows+14))
 	
 	label = myfont.render("("+str(cursor_x)+","+str(cursor_y)+")", 1, (0,0,0))
@@ -249,8 +249,9 @@ def drawScreen(GridSurface,closed_list,path,pathcost):
 		draw_y += 20
 	
 	# Draw Final Path and Closed List
-	for cell in closed_list:
-		pygame.draw.circle(GameScreen, (0,255,0), (cell[0]*blockwidth+blockwidth/2+10,cell[1]*blockwidth+blockwidth/2+10),blockwidth/4, 0)
+	if mode == 1:
+		for cell in closed_list:
+			pygame.draw.circle(GameScreen, (0,255,0), (cell[0]*blockwidth+blockwidth/2+10,cell[1]*blockwidth+blockwidth/2+10),blockwidth/4, 0)
 	for cell in path:
 		pygame.draw.circle(GameScreen, (255,0,0), (cell[0]*blockwidth+blockwidth/2+10,cell[1]*blockwidth+blockwidth/2+10),blockwidth/4, 0)
 	
@@ -291,37 +292,37 @@ def cost(currx, curry, nextx, nexty):
             return 2
 
     #highways - horizonatal or vertical between highways on unblocked cells
-    if grid[currx][curry] == 'a' and grid[nextx][nexty] == 'a':
+    if grid[currx][curry] == 'a' and grid[nextx][nexty] == 'a' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
         return 0.25
     
-    if grid[currx][curry] == 'b' and grid[currx][nexty] == 'b':
+    if grid[currx][curry] == 'b' and grid[currx][nexty] == 'b' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
         return 0.5
     if (grid[currx][curry] == 'a' or grid[nextx][nexty] == 'a') and (grid[currx][curry] == 'b' or grid[nextx][nexty] == 'b'):
         return 0.375
 
     #disembark from an unblocked highway to an unblocked cell is double
-    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '1'):
+    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '1') or (grid[currx][curry] == '1' and grid[nextx][nexty] == 'a'):
         #diagonal movement between unblocked highway and unblocked cell
         if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return 0.5*math.sqrt(2)
+            return math.sqrt(2)
         #horizontal or vertical movement 
         else: 
-            return 0.5
+            return 1
     #disembark from unblocked highway to hard to traverse cell or hard to traverse highway into unblocked cell
     if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '2') or (grid[currx][curry] == 'b' and grid[nextx][nexty] == '1'):
         #diagonal between highway with unblocked cell and hard-to-traverse cell
         if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return 0.25 * (math.sqrt(8) + math.sqrt(2))
+            return 0.5 * (math.sqrt(8) + math.sqrt(2))
         #horizontal or vertical between unblocked highway and hard to traverse cell
         else: 
-            return 0.75
+            return 1.5
     #disembark from hard to traverse highway into hard to traverse cell
-    if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2'):
+    if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2') or (grid[currx][curry] == '2' and grid[nextx][nexty] == 'b'):
         #hard to traverse highway into hard to traverse cell diagonal
         if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return 0.5*math.sqrt(8)
+            return math.sqrt(8)
         else:
-            return 1
+            return 2
     return 0
 
 # A* Stuff
@@ -362,17 +363,23 @@ def heuristic(startx, starty, goalx, goaly, choice):
 	
 	if int(choice) == 1: #manhattan
 		heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
-		#heuristic *= 1.00156
 		return heuristic
 	if int(choice) == 2: #euclidean
 		heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-		#heuristic *= 1.00156
 		return heuristic
 	if int(choice) == 3: #octile
 		dx = abs(int(startx) - int(goalx))
 		dy = abs(int(starty) - int(goaly))
 		return (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
-	return 0
+        if int(choice) == 4: #Chebyshev
+                return max(abs(startx - goalx), abs(starty - goaly))
+        if int(choice) == 5: #euclidean with tie-breaker where tie-breaker is less than minimum tile cost/max possible path length
+		heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+	        heuristic *= 1.00156
+		return heuristic
+
+        
+        return 0
 
 def a_star_search(startx, starty, goalx, goaly, choice):
 	fringe = PriorityQueue()
@@ -415,6 +422,47 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 	
 	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)]
 
+def uniform_cost_search(startx, starty, goalx, goaly):
+	fringe = PriorityQueue()
+	start = Coordinate(startx, starty, None)
+	goal = (goalx, goaly)
+	fringe.put(start, 0)
+
+	closed_list = {}
+	cost_added = {}
+	final_path = []
+	closed_list[(start.get_x(),start.get_y())] = None
+	cost_added[(start.get_x(),start.get_y())] = 0
+
+	while not fringe.empty():
+		current = fringe.get()
+		#print "got current from fringe with x %d and y %d" % current[0], current[1]
+		if (current.get_x(),current.get_y()) == goal:
+			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+			
+			# Make a straight path from goal to start
+			PathNode = current
+			
+			while PathNode != None:
+				final_path.append((PathNode.get_x(),PathNode.get_y()))
+				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+				PathNode = PathNode.get_parent()
+		
+			break
+
+		for next in getNeighbors(current.get_x(), current.get_y()):
+			#print "current x %d current y %d" % current[0], current[1]
+			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
+			
+			if next not in cost_added or new_cost < cost_added[next]:
+			#if next not in closed_list or new_cost < cost_added[next]:
+				cost_added[next] = new_cost
+				priority = new_cost
+				fringe.put(Coordinate(next[0],next[1],current), priority)
+				closed_list[next] = current
+	
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)]	
+
 # Main loop
 running = True
 
@@ -427,6 +475,8 @@ final_path = []
 closed_list = []
 final_cost_added = []
 path_cost = 0
+
+drawmode = 0
 
 while(running):
 	# Get Input
@@ -511,16 +561,27 @@ while(running):
 			elif event.key == pygame.K_DOWN:
 				if cursor_y+1 < GridRows:
 					cursor_y += 1
+			elif event.key == pygame.K_v:
+				# draw closed list
+				if drawmode == 0:
+					drawmode = 1
+				else:
+					drawmode = 0
 			elif event.key == pygame.K_a:
 				#perform a* pathfinding
-				choice = raw_input ("Enter (1) for manhattan distance, (2) for Euclidian distance: ")
+                                choice = -1
+                                while int(choice) < 1 or int(choice) > 5:
+                                    choice = raw_input ("Enter (1) for manhattan distance, (2) for Euclidean distance (3) for Octile Distance (4) for Chebyshev Distance (5) for tie-breaker applied to Euclidean: ")
 				closed_list, final_cost_added, final_path, path_cost = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+			elif event.key == pygame.K_u:
+				# uniform cost pathfinding
+				closed_list, final_cost_added, final_path, path_cost = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 				
 			'''elif event.key == pygame.K_w:
 				#perform weighted a* pathfinding
 			elif event.key == pygame.K_u:
 				#perform uniform cost pathfinding
 				# Draw grid'''
-		drawScreen(GridSurface,closed_list,final_path,path_cost)
+		drawScreen(GridSurface,closed_list,final_path,path_cost,drawmode)
 
 pygame.quit()
