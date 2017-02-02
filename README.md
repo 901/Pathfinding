@@ -2,7 +2,7 @@
 CS440 Assignment 1 that uses A\*, Weighted A\* and Uniform cost search to traverse a maze with different terrain properties
 
 To run the project:
-1) Clone the directory
+1) Clone the directory<br>
 2) run <pre><code> python grid.py </pre></code>
 
 <b> Commands to follow when the program is running </b>
@@ -36,10 +36,10 @@ To run the project:
   <li>Press (v) to see the fringe and which nodes were visited in the search</li>
   </ol>
 <br>
-<br>
+
 <b>On the map:</b>
-Using your arrow keys, you can explore the map to see which cell contains which terrain. If a cell is on the fringe/visited list,
-You can also explore its f(n), g(n) and h(n) values on the sidebar.
+Using your arrow keys, you can explore the map to see which cell contains which terrain. If a cell is on the fringe/visited list,<br>
+You can also explore its f(n), g(n) and h(n) values on the sidebar.<br>
 <i>Terrain Key</i>
 <ol>
   <li>1 = unblocked regular cell</li>
