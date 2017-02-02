@@ -1,3 +1,14 @@
+'''
+CS440 Project 1 Phase 1 - Pathfinding
+@Authors: Aditya Geria, Lawrence Maceren
+@Description: This project provides a way to compare the optimality and speed of different pathfinding algorithms
+We compare A*, Weighted A* and Uniform-Cost under 5 different Heuristics in a maze generated
+using Pygame. 
+In the maze, there will be different types of terrains, and the aim of Phase 1 will be to see
+which heuristics and search algorithms provide the best results in terms of optimality and efficiency
+'''
+
+
 import heapq
 import pygame
 import random
