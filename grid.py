@@ -360,15 +360,19 @@ def heuristic(startx, starty, goalx, goaly, choice):
     #print "choice is: " + str(choice)
 	#print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
 	
-        if int(choice) == 1:
-            heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
-            #heuristic *= 1.00156
-            return heuristic
-        if int(choice) == 2:
-            heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-            #heuristic *= 1.00156
-            return heuristic
-        return 0
+	if int(choice) == 1: #manhattan
+		heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
+		#heuristic *= 1.00156
+		return heuristic
+	if int(choice) == 2: #euclidean
+		heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+		#heuristic *= 1.00156
+		return heuristic
+	if int(choice) == 3: #octile
+		dx = abs(int(startx) - int(goalx))
+		dy = abs(int(starty) - int(goaly))
+		return (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+	return 0
 
 def a_star_search(startx, starty, goalx, goaly, choice):
 	fringe = PriorityQueue()
