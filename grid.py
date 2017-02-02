@@ -206,7 +206,7 @@ def drawGrid(myGridSurface):
 	return myGridSurface
 	
 # Draw Screen
-def drawScreen(GridSurface,closed_list,path):
+def drawScreen(GridSurface,closed_list,path,pathcost):
 	
 	GameScreen.blit(GridSurface,(0,0))
 	
@@ -231,10 +231,16 @@ def drawScreen(GridSurface,closed_list,path):
 	label = myfont.render("Goal: ("+str(goal_x)+","+str(goal_y)+")", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 100))
 	
-	label = myfont.render("Neighbors:", 1, (0,0,0))
-	GameScreen.blit(label, (10+blockwidth*GridCols+30, 130))
+	if pathcost != 0:
+		label = myfont.render("Path Cost:", 1, (0,0,0))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 130))
+		label = myfont.render(str(pathcost), 1, (0,0,0))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 150))
 	
-	draw_y = 150
+	label = myfont.render("Neighbors:", 1, (0,0,0))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 180))
+	
+	draw_y = 200
 	neighbors = getNeighbors(cursor_x,cursor_y)
 	
 	for neighbor in neighbors:
@@ -351,16 +357,16 @@ class PriorityQueue:
 def heuristic(startx, starty, goalx, goaly, choice):
 	start = (startx, starty)
 	goal = (goalx, goaly)
-        #print "choice is: " + str(choice)
+    #print "choice is: " + str(choice)
 	#print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
 	
         if int(choice) == 1:
             heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
-            heuristic *= 1.00156
+            #heuristic *= 1.00156
             return heuristic
         if int(choice) == 2:
             heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-            heuristic *= 1.00156
+            #heuristic *= 1.00156
             return heuristic
         return 0
 
@@ -403,7 +409,7 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
 	
-	return closed_list, cost_added, final_path
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)]
 
 # Main loop
 running = True
@@ -415,6 +421,8 @@ GridSurface = drawGrid(GridSurface)
 start_x,start_y,goal_x,goal_y = generateStartFinish()
 final_path = []
 closed_list = []
+final_cost_added = []
+path_cost = 0
 
 while(running):
 	# Get Input
@@ -431,11 +439,13 @@ while(running):
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
 				final_path = []
 				closed_list = []
+				path_cost = 0
 				print "Generated new map"
 			elif event.key == pygame.K_e:
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
 				final_path = []
 				closed_list = []
+				path_cost = 0
 				print "Generated new start and finish points"
 			elif event.key == pygame.K_s:
 				# Save map: get filename
@@ -480,9 +490,10 @@ while(running):
 						mapfile.read(1)
 					
 					mapfile.close()
-                                        final_path = []
-                                        closed_list = []
-					GridSurface = drawGrid(GridSurface)
+				final_path = []
+				closed_list = []
+				path_cost = 0
+				GridSurface = drawGrid(GridSurface)
 				print "Map loaded!"
 			elif event.key == pygame.K_UP:
 				if cursor_y-1 >= 0:
@@ -498,14 +509,14 @@ while(running):
 					cursor_y += 1
 			elif event.key == pygame.K_a:
 				#perform a* pathfinding
-                                choice = raw_input ("Enter (1) for manhattan distance, (2) for Euclidian distance: ")
-				closed_list, final_cost_added, final_path = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+				choice = raw_input ("Enter (1) for manhattan distance, (2) for Euclidian distance: ")
+				closed_list, final_cost_added, final_path, path_cost = a_star_search(start_x, start_y, goal_x, goal_y, choice)
 				
 			'''elif event.key == pygame.K_w:
 				#perform weighted a* pathfinding
 			elif event.key == pygame.K_u:
 				#perform uniform cost pathfinding
 				# Draw grid'''
-		drawScreen(GridSurface,closed_list,final_path)
+		drawScreen(GridSurface,closed_list,final_path,path_cost)
 
 pygame.quit()
