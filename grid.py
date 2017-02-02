@@ -252,7 +252,7 @@ def drawScreen(GridSurface,closed_list,path,pathcost,mode,elapsedtime,fn_g,fn_f,
 	
 	label = myfont.render("Time: ", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 250))
-	label = myfont.render(str(elapsedtime), 1, (0,0,0))
+	label = myfont.render(str(elapsedtime*1000)+" ms", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 270))
 	#GameScreen.blit(label, (30, 260))
 	
@@ -541,6 +541,7 @@ while(running):
 				closed_list = []
 				priority_list = []
 				heuristic_list = []
+				cell_costs = []
 				path_cost = 0
 				elapsed_time = 0
 				print "Generated new map"
@@ -550,6 +551,7 @@ while(running):
 				closed_list = []
 				priority_list = []
 				heuristic_list = []
+				cell_costs = []
 				path_cost = 0
 				elapsed_time = 0
 				print "Generated new start and finish points"
@@ -598,6 +600,7 @@ while(running):
 					mapfile.close()
 				final_path = []
 				closed_list = []
+				cell_costs = []
 				priority_list = []
 				heuristic_list = []
 				path_cost = 0
