@@ -3,6 +3,7 @@ import pygame
 import random
 import os
 import math
+import time
 from random import randint
 from ast import literal_eval as make_tuple
 
@@ -206,7 +207,7 @@ def drawGrid(myGridSurface):
 	return myGridSurface
 	
 # Draw Screen
-def drawScreen(GridSurface,closed_list,path,pathcost,mode):
+def drawScreen(GridSurface,closed_list,path,pathcost,mode,elapsedtime,fn_g,fn_f,fn_h):
 	
 	GameScreen.blit(GridSurface,(0,0))
 	
@@ -219,7 +220,7 @@ def drawScreen(GridSurface,closed_list,path,pathcost,mode):
 	label = myfont.render("G = New Grid | E = New Endpoints | U = Uniform Cost | A = A* Search | V = Draw Visited Nodes | S = Save | L = Load", 1, (0,0,0))
 	GameScreen.blit(label, (30, blockwidth*GridRows+14))
 	
-	label = myfont.render("("+str(cursor_x)+","+str(cursor_y)+")", 1, (0,0,0))
+	label = myfont.render("Cell: ("+str(cursor_x)+","+str(cursor_y)+")", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 30))
 	
 	label = myfont.render("Type: "+grid[cursor_x][cursor_y], 1, (0,0,0))
@@ -237,10 +238,28 @@ def drawScreen(GridSurface,closed_list,path,pathcost,mode):
 		label = myfont.render(str(pathcost), 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 150))
 	
-	label = myfont.render("Neighbors:", 1, (0,0,0))
-	GameScreen.blit(label, (10+blockwidth*GridCols+30, 180))
+	if (cursor_x,cursor_y) in fn_f:
+		label = myfont.render("f: "+str(fn_f[(cursor_x,cursor_y)]), 1, (0,0,0))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 180))
 	
-	draw_y = 200
+	if (cursor_x,cursor_y) in fn_g:
+		label = myfont.render("g: "+str(fn_g[(cursor_x,cursor_y)]), 1, (0,0,0))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 200))
+	
+	if (cursor_x,cursor_y) in fn_h:
+		label = myfont.render("h: "+str(fn_h[(cursor_x,cursor_y)]), 1, (0,0,0))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 220))
+	
+	label = myfont.render("Time: ", 1, (0,0,0))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 250))
+	label = myfont.render(str(elapsedtime), 1, (0,0,0))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 270))
+	#GameScreen.blit(label, (30, 260))
+	
+	label = myfont.render("Neighbors:", 1, (0,0,0))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 300))
+	
+	draw_y = 320
 	neighbors = getNeighbors(cursor_x,cursor_y)
 	
 	for neighbor in neighbors:
@@ -357,28 +376,34 @@ class PriorityQueue:
 
 def heuristic(startx, starty, goalx, goaly, choice):
 	start = (startx, starty)
-	goal = (goalx, goaly)
+        goal = (goalx, goaly)
     #print "choice is: " + str(choice)
-	#print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
-	
-	if int(choice) == 1: #manhattan
-		heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
-		return heuristic
-	if int(choice) == 2: #euclidean
-		heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-		return heuristic
-	if int(choice) == 3: #octile
-		dx = abs(int(startx) - int(goalx))
-		dy = abs(int(starty) - int(goaly))
-		return (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
-        if int(choice) == 4: #Chebyshev
-                return max(abs(startx - goalx), abs(starty - goaly))
-        if int(choice) == 5: #euclidean with tie-breaker where tie-breaker is less than minimum tile cost/max possible path length
-		heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-	        heuristic *= 1.00156
-		return heuristic
+        #print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
 
-        
+        if int(choice) == 1: #manhattan
+                heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
+                heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+                return heuristic
+        if int(choice) == 2: #euclidean
+                heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+                heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+                return heuristic
+        if int(choice) == 3: #octile
+                dx = abs(int(startx) - int(goalx))
+                dy = abs(int(starty) - int(goaly))
+                heuristic = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+                heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+                return heuristic
+        if int(choice) == 4: #Chebyshev
+                heuristic = max(abs(startx - goalx), abs(starty - goaly))
+                heuristic *= (1.0 + (0.25/160))
+                return heuristic
+        if int(choice) == 5: #5th heuristic
+                heuristic = math.sqrt(2)*min(abs(startx - goalx), abs(starty - goaly)) + max(abs(startx - goalx), abs(starty - goaly)) - min(abs(startx - goalx), abs(starty - goaly))
+                heuristic *= (1.0 + (0.25/160))
+                return heuristic
+
+
         return 0
 
 def a_star_search(startx, starty, goalx, goaly, choice):
@@ -390,9 +415,15 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 	closed_list = {}
 	cost_added = {}
 	final_path = []
+	heuristic_list = {}
+	priority_list = {}
 	closed_list[(start.get_x(),start.get_y())] = None
 	cost_added[(start.get_x(),start.get_y())] = 0
 
+	# f = priority_list[]
+	# g = cost_added[]
+	# h = heuristic
+	
 	while not fringe.empty():
 		current = fringe.get()
 		#print "got current from fringe with x %d and y %d" % current[0], current[1]
@@ -415,13 +446,17 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 			
 			if next not in cost_added or new_cost < cost_added[next]:
 			#if next not in closed_list or new_cost < cost_added[next]:
-				cost_added[next] = new_cost
-				priority = new_cost + heuristic(next[0], next[1], goal_x, goal_y, choice)
+				cost_added[next] = new_cost		# g
+				myheuristic = heuristic(next[0], next[1], goal_x, goal_y, choice)
+				priority = new_cost + myheuristic
+				heuristic_list[next] = myheuristic
+				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
 	
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)]
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
 
+# Add all the extra printing stuff to here too!!!!
 def uniform_cost_search(startx, starty, goalx, goaly):
 	fringe = PriorityQueue()
 	start = Coordinate(startx, starty, None)
@@ -431,9 +466,15 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 	closed_list = {}
 	cost_added = {}
 	final_path = []
+	heuristic_list = {}
+	priority_list = {}
 	closed_list[(start.get_x(),start.get_y())] = None
 	cost_added[(start.get_x(),start.get_y())] = 0
 
+	# f = priority_list[]
+	# g = cost_added[]
+	# h = heuristic
+	
 	while not fringe.empty():
 		current = fringe.get()
 		#print "got current from fringe with x %d and y %d" % current[0], current[1]
@@ -456,12 +497,15 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 			
 			if next not in cost_added or new_cost < cost_added[next]:
 			#if next not in closed_list or new_cost < cost_added[next]:
-				cost_added[next] = new_cost
-				priority = new_cost
+				cost_added[next] = new_cost		# g
+				myheuristic = 0
+				priority = new_cost + myheuristic
+				heuristic_list[next] = myheuristic
+				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
 	
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)]	
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
 
 # Main loop
 running = True
@@ -473,9 +517,11 @@ GridSurface = drawGrid(GridSurface)
 start_x,start_y,goal_x,goal_y = generateStartFinish()
 final_path = []
 closed_list = []
-final_cost_added = []
+cell_costs = []
+priority_list = []
+heuristic_list = []
 path_cost = 0
-
+elapsed_time = 0
 drawmode = 0
 
 while(running):
@@ -493,13 +539,19 @@ while(running):
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
 				final_path = []
 				closed_list = []
+				priority_list = []
+				heuristic_list = []
 				path_cost = 0
+				elapsed_time = 0
 				print "Generated new map"
 			elif event.key == pygame.K_e:
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
 				final_path = []
 				closed_list = []
+				priority_list = []
+				heuristic_list = []
 				path_cost = 0
+				elapsed_time = 0
 				print "Generated new start and finish points"
 			elif event.key == pygame.K_s:
 				# Save map: get filename
@@ -546,7 +598,10 @@ while(running):
 					mapfile.close()
 				final_path = []
 				closed_list = []
+				priority_list = []
+				heuristic_list = []
 				path_cost = 0
+				elapsed_time = 0
 				GridSurface = drawGrid(GridSurface)
 				print "Map loaded!"
 			elif event.key == pygame.K_UP:
@@ -569,19 +624,23 @@ while(running):
 					drawmode = 0
 			elif event.key == pygame.K_a:
 				#perform a* pathfinding
-                                choice = -1
-                                while int(choice) < 1 or int(choice) > 5:
-                                    choice = raw_input ("Enter (1) for manhattan distance, (2) for Euclidean distance (3) for Octile Distance (4) for Chebyshev Distance (5) for tie-breaker applied to Euclidean: ")
-				closed_list, final_cost_added, final_path, path_cost = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+				choice = -1
+				while int(choice) < 1 or int(choice) > 5:
+					choice = raw_input ("Enter (1) for Manhattan distance, (2) for Euclidean distance (3) for Octile distance (4) for Chebyshev distance (5) for WHAT IS THIS CALLED: ")
+				start_time = time.time()
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+				elapsed_time = time.time() - start_time
 			elif event.key == pygame.K_u:
 				# uniform cost pathfinding
-				closed_list, final_cost_added, final_path, path_cost = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+				start_time = time.time()
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+				elapsed_time = time.time() - start_time
 				
 			'''elif event.key == pygame.K_w:
 				#perform weighted a* pathfinding
 			elif event.key == pygame.K_u:
 				#perform uniform cost pathfinding
 				# Draw grid'''
-		drawScreen(GridSurface,closed_list,final_path,path_cost,drawmode)
+		drawScreen(GridSurface,closed_list,final_path,path_cost,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
 
 pygame.quit()
