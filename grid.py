@@ -377,33 +377,43 @@ class PriorityQueue:
 def heuristic(startx, starty, goalx, goaly, choice):
 	start = (startx, starty)
         goal = (goalx, goaly)
+        choice = int(choice)
     #print "choice is: " + str(choice)
         #print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
 
-        if int(choice) == 1: #manhattan
+        if choice == 1: #manhattan
                 heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
                 heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
                 return heuristic
-        if int(choice) == 2: #euclidean
+        if choice == 2: #euclidean
                 heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
                 heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
                 return heuristic
-        if int(choice) == 3: #octile
+        if choice == 3: #octile
                 dx = abs(int(startx) - int(goalx))
                 dy = abs(int(starty) - int(goaly))
                 heuristic = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
                 heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
                 return heuristic
-        if int(choice) == 4: #Chebyshev
+        if choice == 4: #Chebyshev
                 heuristic = max(abs(startx - goalx), abs(starty - goaly))
                 heuristic *= (1.0 + (0.25/160))
                 return heuristic
-        if int(choice) == 5: #5th heuristic
+        if choice == 5: #5th heuristic
                 heuristic = math.sqrt(2)*min(abs(startx - goalx), abs(starty - goaly)) + max(abs(startx - goalx), abs(starty - goaly)) - min(abs(startx - goalx), abs(starty - goaly))
                 heuristic *= (1.0 + (0.25/160))
                 return heuristic
-
-
+        if choice == 6: #Best - minimum of all
+                dx = abs(int(startx) - int(goalx))
+                dy = abs(int(starty) - int(goaly))
+                h1 = dx + dy 
+                h2 = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+                h3 = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+                h4 = max(dx, dy)
+                h5 = math.sqrt(2)*min(dx, dy) + max(dx, dy) - min(dx, dy)
+                h6 = min(h1, h2, h3, h4, h5)
+                h6 *= (1.0 + (0.25/160))
+                return h6
         return 0
 
 def a_star_search(startx, starty, goalx, goaly, choice):
@@ -456,8 +466,8 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 	
 	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
 
-# Add all the extra printing stuff to here too!!!!
-def uniform_cost_search(startx, starty, goalx, goaly):
+
+def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
 	fringe = PriorityQueue()
 	start = Coordinate(startx, starty, None)
 	goal = (goalx, goaly)
@@ -474,6 +484,7 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 	# f = priority_list[]
 	# g = cost_added[]
 	# h = heuristic
+        weight = float(weight)
 	
 	while not fringe.empty():
 		current = fringe.get()
@@ -498,6 +509,58 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 			if next not in cost_added or new_cost < cost_added[next]:
 			#if next not in closed_list or new_cost < cost_added[next]:
 				cost_added[next] = new_cost		# g
+				myheuristic = heuristic(next[0], next[1], goal_x, goal_y, choice)
+				priority = new_cost + (weight * myheuristic) #added a weight
+				heuristic_list[next] = myheuristic
+				priority_list[next] = priority
+				fringe.put(Coordinate(next[0],next[1],current), priority)
+				closed_list[next] = current
+	
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
+
+# Add all the extra printing stuff to here too!!!!
+def uniform_cost_search(startx, starty, goalx, goaly):
+	fringe = PriorityQueue()
+	start = Coordinate(startx, starty, None)
+	goal = (goalx, goaly)
+	fringe.put(start, 0)
+
+	closed_list = {}
+	cost_added = {}
+	final_path = []
+	heuristic_list = {}
+	priority_list = {}
+	closed_list[(start.get_x(),start.get_y())] = None
+	cost_added[(start.get_x(),start.get_y())] = 0
+
+	# f = priority_list[]
+	# g = cost_added[]
+	# h = heuristic
+	
+	while not fringe.empty():
+		current = fringe.get()
+		#print "got current from fringe with x %d and y %d" % current[0], current[1]
+		
+                if (current.get_x(),current.get_y()) == goal:
+			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+			
+			# Make a straight path from goal to start
+			PathNode = current
+
+			while PathNode != None:
+				final_path.append((PathNode.get_x(),PathNode.get_y()))
+				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+				PathNode = PathNode.get_parent()
+
+                        break
+
+		for next in getNeighbors(current.get_x(), current.get_y()):
+			#print "current x %d current y %d" % current[0], current[1]
+			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
+			
+			if next not in cost_added or new_cost < cost_added[next]:
+			#if next not in closed_list or new_cost < cost_added[next]:
+				cost_added[next] = new_cost  # g value
 				myheuristic = 0
 				priority = new_cost + myheuristic
 				heuristic_list[next] = myheuristic
@@ -628,8 +691,8 @@ while(running):
 			elif event.key == pygame.K_a:
 				#perform a* pathfinding
 				choice = -1
-				while int(choice) < 1 or int(choice) > 5:
-					choice = raw_input ("Enter (1) for Manhattan distance, (2) for Euclidean distance (3) for Octile distance (4) for Chebyshev distance (5) for WHAT IS THIS CALLED: ")
+				while int(choice) < 1 or int(choice) > 6:
+					choice = raw_input ("Enter (1) for Manhattan distance, (2) for Euclidean distance, (3) for Octile distance, (4) for Chebyshev distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
 				start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = a_star_search(start_x, start_y, goal_x, goal_y, choice)
 				elapsed_time = time.time() - start_time
@@ -639,11 +702,20 @@ while(running):
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 				elapsed_time = time.time() - start_time
 				
-			'''elif event.key == pygame.K_w:
+			elif event.key == pygame.K_w:
 				#perform weighted a* pathfinding
-			elif event.key == pygame.K_u:
-				#perform uniform cost pathfinding
-				# Draw grid'''
+                                choice = -1 #heuristic choice
+                                weight = 0 #weight of heuristic
+
+                                while (int(choice) < 1 or int(choice) > 6):
+                                    choice = raw_input("Enter (1) for Manhattan distance, (2) for Euclidean Distance, (3) for Octile Distance, (4) for Chebyshev Distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
+                                while float(weight) < 1:
+                                    weight = raw_input("Enter the selected weight for Weighted A* - must be >= 1: ")
+
+                                start_time = time.time()
+                                closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+                                elapsed_time = time.time() - start_time
+
 		drawScreen(GridSurface,closed_list,final_path,path_cost,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
 
 pygame.quit()
