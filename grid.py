@@ -228,8 +228,8 @@ def drawScreen(GridSurface,closed_list,path,pathcost,mode,elapsedtime,fn_g,fn_f,
 	pygame.draw.rect(GameScreen, (255,0,0), (cursor_x*blockwidth+9,cursor_y*blockwidth+9,blockwidth+2,blockwidth+2), 2)
 	
 	# Draw text
-	label = myfont.render("G = New Grid | E = New Endpoints | U = Uniform Cost | A = A* Search | V = Draw Visited Nodes | S = Save | L = Load", 1, (0,0,0))
-	GameScreen.blit(label, (30, blockwidth*GridRows+14))
+	label = myfont.render("G = New Grid | E = New Endpoints | U = Uniform Cost | A = A* Search | W = Weighted A* | V = Visited | S = Save | L = Load", 1, (0,0,0))
+	GameScreen.blit(label, (20, blockwidth*GridRows+14))
 	
 	label = myfont.render("Cell: ("+str(cursor_x)+","+str(cursor_y)+")", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 30))
