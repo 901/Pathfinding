@@ -218,7 +218,7 @@ def drawGrid(myGridSurface):
 	return myGridSurface
 	
 # Draw Screen
-def drawScreen(GridSurface,closed_list,path,pathcost,mode,elapsedtime,fn_g,fn_f,fn_h):
+def drawScreen(GridSurface,closed_list,path,pathcost,nodes_expanded,mode,elapsedtime,fn_g,fn_f,fn_h):
 	
 	GameScreen.blit(GridSurface,(0,0))
 	
@@ -249,28 +249,33 @@ def drawScreen(GridSurface,closed_list,path,pathcost,mode,elapsedtime,fn_g,fn_f,
 		label = myfont.render(str(pathcost), 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 150))
 	
+	if pathcost != 0:
+		label = myfont.render("Nodes Expanded:", 1, (0,0,0))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 170))
+		label = myfont.render(str(nodes_expanded), 1, (0,0,0))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 190))
+	
 	if (cursor_x,cursor_y) in fn_f:
 		label = myfont.render("f: "+str(fn_f[(cursor_x,cursor_y)]), 1, (0,0,0))
-		GameScreen.blit(label, (10+blockwidth*GridCols+30, 180))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 220))
 	
 	if (cursor_x,cursor_y) in fn_g:
 		label = myfont.render("g: "+str(fn_g[(cursor_x,cursor_y)]), 1, (0,0,0))
-		GameScreen.blit(label, (10+blockwidth*GridCols+30, 200))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 240))
 	
 	if (cursor_x,cursor_y) in fn_h:
 		label = myfont.render("h: "+str(fn_h[(cursor_x,cursor_y)]), 1, (0,0,0))
-		GameScreen.blit(label, (10+blockwidth*GridCols+30, 220))
+		GameScreen.blit(label, (10+blockwidth*GridCols+30, 260))
 	
 	label = myfont.render("Time: ", 1, (0,0,0))
-	GameScreen.blit(label, (10+blockwidth*GridCols+30, 250))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 290))
 	label = myfont.render(str(elapsedtime*1000)+" ms", 1, (0,0,0))
-	GameScreen.blit(label, (10+blockwidth*GridCols+30, 270))
-	#GameScreen.blit(label, (30, 260))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 310))
 	
 	label = myfont.render("Neighbors:", 1, (0,0,0))
-	GameScreen.blit(label, (10+blockwidth*GridCols+30, 300))
+	GameScreen.blit(label, (10+blockwidth*GridCols+30, 340))
 	
-	draw_y = 320
+	draw_y = 360
 	neighbors = getNeighbors(cursor_x,cursor_y)
 	
 	for neighbor in neighbors:
@@ -597,6 +602,7 @@ heuristic_list = []
 path_cost = 0
 elapsed_time = 0
 drawmode = 0
+nodes_expanded = 0
 
 while(running):
 	# Get Input
@@ -618,6 +624,7 @@ while(running):
 				cell_costs = []
 				path_cost = 0
 				elapsed_time = 0
+				nodes_expanded = 0
 				print "Generated new map"
 			elif event.key == pygame.K_e:
 				start_x,start_y,goal_x,goal_y = generateStartFinish()
@@ -628,6 +635,7 @@ while(running):
 				cell_costs = []
 				path_cost = 0
 				elapsed_time = 0
+				nodes_expanded = 0
 				print "Generated new start and finish points"
 			elif event.key == pygame.K_s:
 				# Save map: get filename
@@ -679,6 +687,7 @@ while(running):
 				heuristic_list = []
 				path_cost = 0
 				elapsed_time = 0
+				nodes_expanded = 0
 				GridSurface = drawGrid(GridSurface)
 				print "Map loaded!"
 			elif event.key == pygame.K_UP:
@@ -707,26 +716,29 @@ while(running):
 				start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = a_star_search(start_x, start_y, goal_x, goal_y, choice)
 				elapsed_time = time.time() - start_time
+				nodes_expanded = len(closed_list)
 			elif event.key == pygame.K_u:
 				# uniform cost pathfinding
 				start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 				elapsed_time = time.time() - start_time
-				
+				nodes_expanded = len(closed_list)
 			elif event.key == pygame.K_w:
 				#perform weighted a* pathfinding
-                                choice = -1 #heuristic choice
-                                weight = 0 #weight of heuristic
+				choice = -1 #heuristic choice
+				weight = 0 #weight of heuristic
 
-                                while (int(choice) < 1 or int(choice) > 6):
-                                    choice = raw_input("Enter (1) for Manhattan distance, (2) for Euclidean Distance, (3) for Octile Distance, (4) for Chebyshev Distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
-                                while float(weight) < 1:
-                                    weight = raw_input("Enter the selected weight for Weighted A* - must be >= 1: ")
-
-                                start_time = time.time()
-                                closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
-                                elapsed_time = time.time() - start_time
-
-		drawScreen(GridSurface,closed_list,final_path,path_cost,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
+				while (int(choice) < 1 or int(choice) > 6):
+					choice = raw_input("Enter (1) for Manhattan distance, (2) for Euclidean Distance, (3) for Octile Distance, (4) for Chebyshev Distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
+				while float(weight) < 1:
+					weight = raw_input("Enter the selected weight for Weighted A* - must be >= 1: ")
+				
+				start_time = time.time()
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+				elapsed_time = time.time() - start_time
+				
+				nodes_expanded = len(closed_list)
+								
+		drawScreen(GridSurface,closed_list,final_path,path_cost,nodes_expanded,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
 
 pygame.quit()
