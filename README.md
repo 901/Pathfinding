@@ -42,6 +42,7 @@ Using your arrow keys, you can explore the map to see which cell contains which 
 You can also explore its f(n), g(n) and h(n) values on the sidebar.<br>
 <i>Terrain Key</i>
 <ol>
+  <li>0 = blocked cell</li>
   <li>1 = unblocked regular cell</li>
   <li>2 = hard-to-traverse cell</li>
   <li>a = highway unblocked regular</li>
