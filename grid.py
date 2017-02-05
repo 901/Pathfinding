@@ -363,10 +363,7 @@ def cost(currx, curry, nextx, nexty):
     return 0
 
 def memory_usage():
-    if sys.platform == 'darwin':
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024) #mac treats this differently
-    else:
-       mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
     return mem
 
 # A* Stuff
@@ -488,8 +485,8 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
-
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
+        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
 
 
 def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
@@ -540,8 +537,9 @@ def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
 				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
-	
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
+
+        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
 
 # Add all the extra printing stuff to here too!!!!
 def uniform_cost_search(startx, starty, goalx, goaly):
@@ -592,8 +590,9 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
-	
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
+
+        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
 
 # Main loop
 running = True
@@ -752,9 +751,9 @@ while(running):
                             fo = open("diagnostics.txt", "w")
                             for num in range (1, 11):
                                 if num < 10:
-                                    filename = "map5_0"+str(num) #change map prefix to match the series
+                                    filename = "map1_0"+str(num) #change map prefix to match the series
                                 if num == 10:
-                                    filename = "map5_10" #change here too
+                                    filename = "map1_10" #change here too
                                 with open(os.path.join("./gen",filename),"r") as mapfile: #changed to allow using /maps folder
 					new_start = make_tuple(mapfile.readline())
 					start_x = new_start[0]
@@ -782,31 +781,31 @@ while(running):
 		                GridSurface = drawGrid(GridSurface)
                                 
                                 start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 			        elapsed_time = time.time() - start_time
-                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()) + "\n")
+                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem) + "\n")
                                 
                                 
                                 for choice in range(1, 6):
                                     start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
                                     elapsed_time = time.time() - start_time
-                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()))
+                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
                                     fo.write("\n")
                                
                                 weight = 1.25
                                 for choice in range (1, 6):
                                     start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
                                     elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()))
+                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
                                     fo.write("\n")
                                 weight = 2
                                 for choice in range (1, 6):
                                     start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
                                     elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()))
+                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
                                     fo.write("\n")
                             fo.close()
 
