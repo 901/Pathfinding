@@ -15,6 +15,8 @@ import random
 import os
 import math
 import time
+import resource
+import sys
 from random import randint
 from ast import literal_eval as make_tuple
 
@@ -360,6 +362,13 @@ def cost(currx, curry, nextx, nexty):
             return 2
     return 0
 
+def memory_usage():
+    if sys.platform == 'darwin':
+        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024) #mac treats this differently
+    else:
+       mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    return mem
+
 # A* Stuff
 
 class Coordinate:
@@ -449,7 +458,7 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 	# f = priority_list[]
 	# g = cost_added[]
 	# h = heuristic
-	
+
 	while not fringe.empty():
 		current = fringe.get()
 		#print "got current from fringe with x %d and y %d" % current[0], current[1]
@@ -479,7 +488,7 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
-	
+
 	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
 
 
@@ -738,17 +747,14 @@ while(running):
 				elapsed_time = time.time() - start_time
 				
 				nodes_expanded = len(closed_list)
-	               
-                       '''DIAGNOSTIC FUNCTION
-                       This function is used only to test bulk map benchmarks. Not intended for
-                       actual functional use except to spit out data'''
+    
                         elif event.key == pygame.K_d:
                             fo = open("diagnostics.txt", "w")
                             for num in range (1, 11):
                                 if num < 10:
-                                    filename = "map1_0"+str(num) #change map prefix to match the series
+                                    filename = "map5_0"+str(num) #change map prefix to match the series
                                 if num == 10:
-                                    filename = "map1_10" #change here too
+                                    filename = "map5_10" #change here too
                                 with open(os.path.join("./gen",filename),"r") as mapfile: #changed to allow using /maps folder
 					new_start = make_tuple(mapfile.readline())
 					start_x = new_start[0]
@@ -778,14 +784,14 @@ while(running):
                                 start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 			        elapsed_time = time.time() - start_time
-                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\n")
+                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()) + "\n")
                                 
                                 
                                 for choice in range(1, 6):
                                     start_time = time.time()
                                     closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = a_star_search(start_x, start_y, goal_x, goal_y, choice)
                                     elapsed_time = time.time() - start_time
-                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)))
+                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()))
                                     fo.write("\n")
                                
                                 weight = 1.25
@@ -793,15 +799,16 @@ while(running):
                                     start_time = time.time()
                                     closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
                                     elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)))
+                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()))
                                     fo.write("\n")
                                 weight = 2
                                 for choice in range (1, 6):
                                     start_time = time.time()
                                     closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
                                     elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)))
+                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(memory_usage()))
                                     fo.write("\n")
+                            fo.close()
 
 
 		drawScreen(GridSurface,closed_list,final_path,path_cost,nodes_expanded,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
