@@ -15,8 +15,6 @@ import random
 import os
 import math
 import time
-import resource
-import sys
 from random import randint
 from ast import literal_eval as make_tuple
 
@@ -362,10 +360,6 @@ def cost(currx, curry, nextx, nexty):
             return 2
     return 0
 
-def memory_usage():
-    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-    return mem
-
 # A* Stuff
 
 class Coordinate:
@@ -455,7 +449,7 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 	# f = priority_list[]
 	# g = cost_added[]
 	# h = heuristic
-
+	
 	while not fringe.empty():
 		current = fringe.get()
 		#print "got current from fringe with x %d and y %d" % current[0], current[1]
@@ -485,8 +479,8 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
+	
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
 
 
 def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
@@ -537,9 +531,8 @@ def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
 				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
-
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
+	
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
 
 # Add all the extra printing stuff to here too!!!!
 def uniform_cost_search(startx, starty, goalx, goaly):
@@ -590,9 +583,8 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 				priority_list[next] = priority
 				fringe.put(Coordinate(next[0],next[1],current), priority)
 				closed_list[next] = current
-
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
+	
+	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list
 
 # Main loop
 running = True
@@ -722,13 +714,13 @@ while(running):
 				while int(choice) < 1 or int(choice) > 6:
 					choice = raw_input ("Enter (1) for Manhattan distance, (2) for Euclidean distance, (3) for Octile distance, (4) for Chebyshev distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = a_star_search(start_x, start_y, goal_x, goal_y, choice)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
 			elif event.key == pygame.K_u:
 				# uniform cost pathfinding
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
 			elif event.key == pygame.K_w:
@@ -742,74 +734,11 @@ while(running):
 					weight = raw_input("Enter the selected weight for Weighted A* - must be >= 1: ")
 				
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
 				elapsed_time = time.time() - start_time
 				
 				nodes_expanded = len(closed_list)
-    
-                        elif event.key == pygame.K_d:
-                            fo = open("diagnostics.txt", "w")
-                            for num in range (1, 11):
-                                if num < 10:
-                                    filename = "map1_0"+str(num) #change map prefix to match the series
-                                if num == 10:
-                                    filename = "map1_10" #change here too
-                                with open(os.path.join("./gen",filename),"r") as mapfile: #changed to allow using /maps folder
-					new_start = make_tuple(mapfile.readline())
-					start_x = new_start[0]
-					start_y = new_start[1]
-					new_goal = make_tuple(mapfile.readline())
-					goal_x = new_goal[0]
-					goal_y = new_goal[1]
-					areacoordinates = []
-					for i in range(8):
-						new_area = make_tuple(mapfile.readline())
-						areacoordinates.append((new_area[0],new_area[1]))
-					for y in range(len(grid[x])):				# Read each cell
-						for x in range(len(grid)):					
-							grid[x][y] = mapfile.read(1)
-						mapfile.read(1)
-				        mapfile.close()
-				final_path = []
-				closed_list = []
-				cell_costs = []
-				priority_list = []
-				heuristic_list = []
-			        path_cost = 0
-			        elapsed_time = 0
-		                nodes_expanded = 0
-		                GridSurface = drawGrid(GridSurface)
-                                
-                                start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
-			        elapsed_time = time.time() - start_time
-                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem) + "\n")
-                                
-                                
-                                for choice in range(1, 6):
-                                    start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
-                                    elapsed_time = time.time() - start_time
-                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
-                                    fo.write("\n")
-                               
-                                weight = 1.25
-                                for choice in range (1, 6):
-                                    start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
-                                    elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
-                                    fo.write("\n")
-                                weight = 2
-                                for choice in range (1, 6):
-                                    start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
-                                    elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
-                                    fo.write("\n")
-                            fo.close()
-
-
+								
 		drawScreen(GridSurface,closed_list,final_path,path_cost,nodes_expanded,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
 
 pygame.quit()
