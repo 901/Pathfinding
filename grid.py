@@ -168,7 +168,7 @@ def generateStartFinish():
 	if y>20:
 		y = GridRows-y+20
 		
-	while grid[x][y]=='a' or grid[x][y]=='b':
+	while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0':
 		x = randint(0,39)
 		y = randint(0,39)
 		if x>20:
@@ -351,15 +351,18 @@ def cost(currx, curry, nextx, nexty):
         #horizontal or vertical between unblocked highway and hard to traverse cell
         else: 
             return 1.5
+	
     #disembark from hard to traverse highway into hard to traverse cell
     if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2') or (grid[currx][curry] == '2' and grid[nextx][nexty] == 'b'):
-        #hard to traverse highway into hard to traverse cell diagonal
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return math.sqrt(8)
-        else:
-            return 2
-    return 0
-
+		#hard to traverse highway into hard to traverse cell diagonal
+		if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+			return math.sqrt(8)
+		else:
+			return 2
+	
+	print "Can not find cost from ("+str(currx)+","+str(curry)+") with terrain "+grid[currx][curry]+" to ("+str(nextx)+","+str(nexty)+") with terrain "+grid[nextx][nexty]
+	return 0
+	
 # A* Stuff
 
 class Coordinate:
