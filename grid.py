@@ -722,13 +722,13 @@ while(running):
 				while int(choice) < 1 or int(choice) > 6:
 					choice = raw_input ("Enter (1) for Manhattan distance, (2) for Euclidean distance, (3) for Octile distance, (4) for Chebyshev distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
 			elif event.key == pygame.K_u:
 				# uniform cost pathfinding
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
 			elif event.key == pygame.K_w:
@@ -742,7 +742,7 @@ while(running):
 					weight = raw_input("Enter the selected weight for Weighted A* - must be >= 1: ")
 				
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
 				elapsed_time = time.time() - start_time
 				
 				nodes_expanded = len(closed_list)
