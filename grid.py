@@ -369,6 +369,46 @@ class PriorityQueue:
 	def get(self):
 		return heapq.heappop(self.elements)[1]
 
+def heuristic(self,startx,starty,goalx,goaly,choice):
+	start = (startx, starty)
+	goal = (goalx, goaly)
+	choice = int(choice)
+
+	if choice == 1: #manhattan
+			heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
+			heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+			return heuristic
+	if choice == 2: #euclidean
+			heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+			heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+			return heuristic
+	if choice == 3: #octile
+			dx = abs(int(startx) - int(goalx))
+			dy = abs(int(starty) - int(goaly))
+			heuristic = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+			heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+			return heuristic
+	if choice == 4: #Chebyshev
+			heuristic = max(abs(startx - goalx), abs(starty - goaly))
+			heuristic *= (1.0 + (0.25/160))
+			return heuristic
+	if choice == 5: #5th heuristic
+			heuristic = math.sqrt(2)*min(abs(startx - goalx), abs(starty - goaly)) + max(abs(startx - goalx), abs(starty - goaly)) - min(abs(startx - goalx), abs(starty - goaly))
+			heuristic *= (1.0 + (0.25/160))
+			return heuristic
+	if choice == 6: #Best - minimum of all
+			dx = abs(int(startx) - int(goalx))
+			dy = abs(int(starty) - int(goaly))
+			h1 = dx + dy 
+			h2 = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+			h3 = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+			h4 = max(dx, dy)
+			h5 = math.sqrt(2)*min(dx, dy) + max(dx, dy) - min(dx, dy)
+			h6 = min(h1, h2, h3, h4, h5)
+			h6 *= (1.0 + (0.25/160))
+			return h6
+	return 0
+		
 class AStarSearch(object):
 	def Search(self, startx, starty, goalx, goaly, choice):
 		fringe = PriorityQueue()
@@ -424,8 +464,6 @@ class AStarSearch(object):
 		start = (startx, starty)
 		goal = (goalx, goaly)
 		choice = int(choice)
-		#print "choice is: " + str(choice)
-		#print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
 
 		if choice == 1: #manhattan
 				heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
@@ -461,7 +499,7 @@ class AStarSearch(object):
 				h6 *= (1.0 + (0.25/160))
 				return h6
 		return 0
-		
+				
 class UniformCostSearch(AStarSearch):
 	def heuristic(self,startx, starty, goalx, goaly, choice):
 		return 1
@@ -596,8 +634,7 @@ while(running):
 					drawmode = 1
 				else:
 					drawmode = 0
-			elif event.key == pygame.K_a:
-				#perform a* pathfinding
+			elif event.key == pygame.K_a:		# -------- A* Search --------
 				choice = -1
 				while int(choice) < 1 or int(choice) > 6:
 					choice = raw_input ("Enter (1) for Manhattan distance, (2) for Euclidean distance, (3) for Octile distance, (4) for Chebyshev distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
@@ -606,15 +643,13 @@ while(running):
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x, start_y, goal_x, goal_y,choice)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
-			elif event.key == pygame.K_u:
-				# uniform cost pathfinding
+			elif event.key == pygame.K_u:		# -------- Uniform Cost Search --------
 				MySearch = UniformCostSearch()
 				start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x, start_y, goal_x, goal_y,1)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
-			elif event.key == pygame.K_w:
-				#perform weighted a* pathfinding
+			elif event.key == pygame.K_w:		# -------- Weighted A* Search --------
 				choice = -1 #heuristic choice
 				weight = 0 #weight of heuristic
 
@@ -629,7 +664,10 @@ while(running):
 				elapsed_time = time.time() - start_time
 				
 				nodes_expanded = len(closed_list)
-								
+			elif event.key == pygame.K_q:		# -------- Sequential A* Search --------
+				MySearch = AStarSearch()
+
+				
 		drawScreen(GridSurface,closed_list,final_path,path_cost,nodes_expanded,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
 
 pygame.quit()
