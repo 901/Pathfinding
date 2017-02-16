@@ -300,68 +300,68 @@ def getNeighbors(x,y):
 	return myneighbors
 
 def cost(currx, curry, nextx, nexty):
-
-    #traverse between normal terrain
-    #print "The terrain here is: %s. Moving to %s" % (grid[currx][curry], grid[nextx][nexty])
-    if grid[currx][curry] == '1' and grid[nextx][nexty] =='1':
-        #diagonal between normal terrain
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return math.sqrt(2)
-        #horizontal or vertical
-        else:
-            return 1
-
-    #traverse into or between a hard-to-traverse cell
-    if grid[currx][curry] == '2' or grid[nextx][nexty] == '2':
-        #traverse diagonally between hard to traverse
-        if (grid[currx][curry] == '2' and grid[nextx][nexty] == '2') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            return math.sqrt(8)
-        #moving diagonally between regular unblocked and hard to traverse
-        elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            return 0.5 * (math.sqrt(8) + math.sqrt(2))
-        #traverse into or between hard to traverse and regular unblocked
-        elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1'):
-            return 1.5
-        #travel between two hard to traverse
-        else:
-            return 2
-
-    #highways - horizonatal or vertical between highways on unblocked cells
-    if grid[currx][curry] == 'a' and grid[nextx][nexty] == 'a' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
-        return 0.25
-    
-    if grid[currx][curry] == 'b' and grid[currx][nexty] == 'b' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
-        return 0.5
-    if ((grid[currx][curry] == 'a' or grid[nextx][nexty] == 'a') and (grid[currx][curry] == 'b' or grid[nextx][nexty] == 'b')) and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
-        return 0.375
-
-    #disembark from an unblocked highway to an unblocked cell is double
-    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '1') or (grid[currx][curry] == '1' and grid[nextx][nexty] == 'a'):
-        #diagonal movement between unblocked highway and unblocked cell
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return math.sqrt(2)
-        #horizontal or vertical movement 
-        else: 
-            return 1
-    #disembark from unblocked highway to hard to traverse cell or hard to traverse highway into unblocked cell
-    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '2') or (grid[currx][curry] == 'b' and grid[nextx][nexty] == '1'):
-        #diagonal between highway with unblocked cell and hard-to-traverse cell
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return 0.5 * (math.sqrt(8) + math.sqrt(2))
-        #horizontal or vertical between unblocked highway and hard to traverse cell
-        else: 
-            return 1.5
+	return 1
 	
-    #disembark from hard to traverse highway into hard to traverse cell
-    if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2') or (grid[currx][curry] == '2' and grid[nextx][nexty] == 'b'):
-		#hard to traverse highway into hard to traverse cell diagonal
-		if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-			return math.sqrt(8)
-		else:
-			return 2
-	
-	print "Can not find cost from ("+str(currx)+","+str(curry)+") with terrain "+grid[currx][curry]+" to ("+str(nextx)+","+str(nexty)+") with terrain "+grid[nextx][nexty]
-	return 0
+'''#traverse between normal terrain
+#print "The terrain here is: %s. Moving to %s" % (grid[currx][curry], grid[nextx][nexty])
+if grid[currx][curry] == '1' and grid[nextx][nexty] =='1':
+	#diagonal between normal terrain
+	if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+		return math.sqrt(2)
+	#horizontal or vertical
+	else:
+		return 1
+
+#traverse into or between a hard-to-traverse cell
+if grid[currx][curry] == '2' or grid[nextx][nexty] == '2':
+	#traverse diagonally between hard to traverse
+	if (grid[currx][curry] == '2' and grid[nextx][nexty] == '2') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+		return math.sqrt(8)
+	#moving diagonally between regular unblocked and hard to traverse
+	elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+		return 0.5 * (math.sqrt(8) + math.sqrt(2))
+	#traverse into or between hard to traverse and regular unblocked
+	elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1'):
+		return 1.5
+	#travel between two hard to traverse
+	else:
+		return 2
+
+#highways - horizonatal or vertical between highways on unblocked cells
+if grid[currx][curry] == 'a' and grid[nextx][nexty] == 'a' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
+	return 0.25
+
+if grid[currx][curry] == 'b' and grid[currx][nexty] == 'b' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
+	return 0.5
+if ((grid[currx][curry] == 'a' or grid[nextx][nexty] == 'a') and (grid[currx][curry] == 'b' or grid[nextx][nexty] == 'b')) and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
+	return 0.375
+
+#disembark from an unblocked highway to an unblocked cell is double
+if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '1') or (grid[currx][curry] == '1' and grid[nextx][nexty] == 'a'):
+	#diagonal movement between unblocked highway and unblocked cell
+	if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+		return math.sqrt(2)
+	#horizontal or vertical movement 
+	else: 
+		return 1
+#disembark from unblocked highway to hard to traverse cell or hard to traverse highway into unblocked cell
+if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '2') or (grid[currx][curry] == 'b' and grid[nextx][nexty] == '1'):
+	#diagonal between highway with unblocked cell and hard-to-traverse cell
+	if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+		return 0.5 * (math.sqrt(8) + math.sqrt(2))
+	#horizontal or vertical between unblocked highway and hard to traverse cell
+	else: 
+		return 1.5
+
+#disembark from hard to traverse highway into hard to traverse cell
+if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2') or (grid[currx][curry] == '2' and grid[nextx][nexty] == 'b'):
+	#hard to traverse highway into hard to traverse cell diagonal
+	if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
+		return math.sqrt(8)
+	else:
+		return 2
+		
+print "Can not find cost from ("+str(currx)+","+str(curry)+") with terrain "+grid[currx][curry]+" to ("+str(nextx)+","+str(nexty)+") with terrain "+grid[nextx][nexty]'''
 	
 # A* Stuff
 
