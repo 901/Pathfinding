@@ -170,7 +170,7 @@ def generateStartFinish():
 	if y>20:
 		y = GridRows-y+20
 		
-	while grid[x][y]=='a' or grid[x][y]=='b':
+	while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0':
 		x = randint(0,39)
 		y = randint(0,39)
 		if x>20:
@@ -182,7 +182,7 @@ def generateStartFinish():
 	start_y = y
 	
 	# Generate Finish
-	while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0' or math.sqrt((x-start_x)**2+(y-start_y)**2)<100:
+        while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0' or math.sqrt((x-start_x)**2+(y-start_y)**2)<100:
 		x = randint(0,39)
 		y = randint(0,39)
 		if x>20:
@@ -302,10 +302,47 @@ def getNeighbors(x,y):
 	return myneighbors
 
 def cost(currx, curry, nextx, nexty):
+    
+    cost = 0.0
+    
+    if (grid[currx][curry] == 'a' or grid[currx][curry] == '1') and (grid[nextx][nexty] == 'a' or grid[nextx][nexty] == '1'):
+        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+            #traversing unblocked diagonally
+            cost = math.sqrt(2)
+        else:
+            #traversing unblocked diagonally
+            cost = 1
+    if (grid[currx][curry] == 'b' or grid[currx][curry] == '2') and (grid[nextx][nexty] == '2' or grid[nextx][nexty] == 'b'):
+        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+            #traversing unblocked diagonally
+            cost = math.sqrt(8)
+        else:
+            #traversing unblocked diagonally
+            cost = 2
+    if (grid[currx][curry] == 'a' or grid[currx][curry] == '1') and (grid[nextx][nexty] == '2' or grid[nextx][nexty] == 'b'):
+        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+            #traversing unblocked diagonally
+            cost = (math.sqrt(2) + math.sqrt(8)) / 2
+        else:
+            #traversing unblocked diagonally
+            cost = 1.5
+    if (grid[currx][curry] == '2' or grid[currx][curry] == 'b') and (grid[nextx][nexty] == '1' or grid[nextx][nexty] == 'a'):
+        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+            #traversing unblocked diagonally
+            cost = (math.sqrt(2) + math.sqrt(8)) / 2
+        else:
+            #traversing unblocked diagonally
+            cost = 1.5
+    if (grid[currx][curry] == 'a' or grid[currx][curry] == 'b') and (grid[nextx][nexty] == 'a' or grid[nextx][nexty] == 'b') and (((currx == nextx + 1 or currx == nexty - 1) and curry == nexty) or ((curry == nexty + 1 or curry == nexty - 1) and currx == nextx)):
+        cost = cost / 4
+        return cost
+    if cost == 0.0:
+        print "Could not find cost value. Current: " + str(currx) + ", " + str(curry) + " of type: " + grid[currx][curry] + "/Next: " + str(nextx) + ", " + str(nexty) + " of type: " + grid[nextx][nexty]
+    
+    
+    return cost
 
-    #traverse between normal terrain
-    #print "The terrain here is: %s. Moving to %s" % (grid[currx][curry], grid[nextx][nexty])
-    if grid[currx][curry] == '1' and grid[nextx][nexty] =='1':
+    '''if grid[currx][curry] == '1' and grid[nextx][nexty] =='1':
         #diagonal between normal terrain
         if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
             return math.sqrt(2)
@@ -360,7 +397,7 @@ def cost(currx, curry, nextx, nexty):
             return math.sqrt(8)
         else:
             return 2
-    return 0
+    return 0'''
 
 def memory_usage():
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
@@ -751,9 +788,9 @@ while(running):
                             fo = open("diagnostics.txt", "w")
                             for num in range (1, 11):
                                 if num < 10:
-                                    filename = "map1_0"+str(num) #change map prefix to match the series
+                                    filename = "map5_0"+str(num) #change map prefix to match the series
                                 if num == 10:
-                                    filename = "map1_10" #change here too
+                                    filename = "map5_10" #change here too
                                 with open(os.path.join("./gen",filename),"r") as mapfile: #changed to allow using /maps folder
 					new_start = make_tuple(mapfile.readline())
 					start_x = new_start[0]
@@ -783,14 +820,14 @@ while(running):
                                 start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
 			        elapsed_time = time.time() - start_time
-                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem) + "\n")
+                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem) + "\n")
                                 
                                 
                                 for choice in range(1, 6):
                                     start_time = time.time()
                                     closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
                                     elapsed_time = time.time() - start_time
-                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
+                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
                                     fo.write("\n")
                                
                                 weight = 1.25
@@ -798,14 +835,14 @@ while(running):
                                     start_time = time.time()
                                     closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
                                     elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
+                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
                                     fo.write("\n")
                                 weight = 2
                                 for choice in range (1, 6):
                                     start_time = time.time()
                                     closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
                                     elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem))
+                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
                                     fo.write("\n")
                             fo.close()
 
