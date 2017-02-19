@@ -3,7 +3,7 @@ CS440 Project 1 Phase 1 - Pathfinding
 @Authors: Aditya Geria, Lawrence Maceren
 @Description: This project provides a way to compare the optimality and speed of different pathfinding algorithms
 We compare A*, Weighted A* and Uniform-Cost under 5 different Heuristics in a maze generated
-using Pygame. 
+using Pygame.
 In the maze, there will be different types of terrains, and the aim of Phase 1 will be to see
 which heuristics and search algorithms provide the best results in terms of optimality and efficiency
 '''
@@ -47,7 +47,7 @@ def makeGrid():
 	while areasmade < 8:
 		area_x = randint(0,GridCols-1)
 		area_y = randint(0,GridRows-1)
-		
+
 		if (area_x,area_y) not in areacoordinates:
 			areacoordinates.append((area_x,area_y))
 			for x in range(area_x-15,area_x+15):
@@ -57,22 +57,22 @@ def makeGrid():
 							# 20% chance of this being hard to traverse
 							if randint(0,9) < 5:
 								grid[x][y] = '2'
-			
+
 			#drawScreen()
 			areasmade += 1
-			
+
 
 	# Make 4 rivers
 	riversmade = 0
-	
+
 	while riversmade < 4:
 		makeriver = True
 		rivercells = []
-		
+
 		# Select a starting boundary
 		x = randint(1,GridCols-2)
 		y = randint(1,GridRows-2)
-		
+
 		startside = randint(0,3)	# 0 = North, 1 = East, 2 = South, 3 = West
 		if startside == 0:
 			y = 0
@@ -90,15 +90,15 @@ def makeGrid():
 			x = 0
 			direction = 1
 			#direction = random.choice([0,1,2])
-		
+
 		travelled = 0
 		totaltravelled = 0
-		
+
 		while True:
 			# Quit if out of bounds
 			if x<0 or x>=GridCols or y<0 or y>=GridRows:
 				break
-			
+
 			# Quit if crossed a river, do not make river
 			if grid[x][y] == 'a' or grid[x][y] == 'b':
 				makeriver = False
@@ -106,11 +106,11 @@ def makeGrid():
 			if (x,y) in rivercells:
 				makeriver = False
 				break
-				
+
 			rivercells.append((x,y))
 			travelled += 1
 			totaltravelled += 1
-			
+
 			# Move to next cell
 			if direction == 0:
 				y -= 1
@@ -120,7 +120,7 @@ def makeGrid():
 				y += 1
 			else:
 				x -= 1
-				
+
 			# Change directions if travelled 20 cells
 			if travelled >= 20:
 				travelled = 0
@@ -133,33 +133,33 @@ def makeGrid():
 						direction = random.choice([1,3])
 					else:
 						direction = random.choice([0,2])
-		
+
 		if totaltravelled < 100:
 			makeriver = False
-		
+
 		if makeriver == True:
 			for cell in rivercells:
 				if grid[cell[0]][cell[1]] == '1':
 					grid[cell[0]][cell[1]] = 'a'
 				else:
 					grid[cell[0]][cell[1]] = 'b'
-				
+
 			riversmade += 1
-			
+
 	# Blocked cells
 	needtoblock = GridCols*GridRows*0.2
 	blocked = 0
-	
+
 	while blocked < needtoblock:
 		x = randint(0,GridCols-1)
 		y = randint(0,GridRows-1)
 		if grid[x][y]=='1' or grid[x][y]=='2':
 			grid[x][y] = '0'
 			blocked += 1
-	
+
 	# Return the coordinates of hard to traverse areas
 	return areacoordinates
-	
+
 # Generate Start and Finish
 def generateStartFinish():
 	# Generate Start
@@ -169,7 +169,7 @@ def generateStartFinish():
 		x = GridCols-x+20
 	if y>20:
 		y = GridRows-y+20
-		
+
 	while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0':
 		x = randint(0,39)
 		y = randint(0,39)
@@ -177,10 +177,10 @@ def generateStartFinish():
 			x = GridCols-x+20
 		if y>20:
 			y = GridRows-y+20
-		
+
 	start_x = x
 	start_y = y
-	
+
 	# Generate Finish
         while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0' or math.sqrt((x-start_x)**2+(y-start_y)**2)<100:
 		x = randint(0,39)
@@ -192,7 +192,7 @@ def generateStartFinish():
 
 	goal_x = x
 	goal_y = y
-	
+
 	return start_x,start_y,goal_x,goal_y
 
 # Draw Grid
@@ -200,111 +200,111 @@ def drawGrid(myGridSurface):
 	myGridSurface.fill((255,255,255))
 	for x in range(len(grid)):
 		for y in range(len(grid[x])):
-			if grid[x][y] == '0': 
+			if grid[x][y] == '0':
 				pygame.draw.rect(myGridSurface, (40,40,40), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
 				pygame.draw.rect(myGridSurface, (40,40,40), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == '1': 
+			elif grid[x][y] == '1':
 				pygame.draw.rect(myGridSurface, (255,255,255), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
 				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == '2': 
+			elif grid[x][y] == '2':
 				pygame.draw.rect(myGridSurface, (200,200,200), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
 				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == 'a': 
+			elif grid[x][y] == 'a':
 				pygame.draw.rect(myGridSurface, (130,170,255), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
 				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-			elif grid[x][y] == 'b': 
+			elif grid[x][y] == 'b':
 				pygame.draw.rect(myGridSurface, (70,90,220), (x*blockwidth+10,y*blockwidth+10,blockwidth,blockwidth), 0)
 				pygame.draw.rect(myGridSurface, (100,100,100), (x*blockwidth+10,y*blockwidth+10,blockwidth+1,blockwidth+1), 1)
-	
+
 	myGridSurface = myGridSurface.convert()
 	return myGridSurface
-	
+
 # Draw Screen
 def drawScreen(GridSurface,closed_list,path,pathcost,nodes_expanded,mode,elapsedtime,fn_g,fn_f,fn_h):
-	
+
 	GameScreen.blit(GridSurface,(0,0))
-	
+
 	pygame.draw.circle(GameScreen, (255,0,0), (start_x*blockwidth+blockwidth/2+10,start_y*blockwidth+blockwidth/2+10),blockwidth/2, 0)
 	pygame.draw.circle(GameScreen, (0,0,255), (goal_x*blockwidth+blockwidth/2+10,goal_y*blockwidth+blockwidth/2+10),blockwidth/2, 0)
-	
+
 	pygame.draw.rect(GameScreen, (255,0,0), (cursor_x*blockwidth+9,cursor_y*blockwidth+9,blockwidth+2,blockwidth+2), 2)
-	
+
 	# Draw text
 	label = myfont.render("G = New Grid | E = New Endpoints | U = Uniform Cost | A = A* Search | W = Weighted A* | V = Visited | S = Save | L = Load", 1, (0,0,0))
 	GameScreen.blit(label, (20, blockwidth*GridRows+14))
-	
+
 	label = myfont.render("Cell: ("+str(cursor_x)+","+str(cursor_y)+")", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 30))
-	
+
 	label = myfont.render("Type: "+grid[cursor_x][cursor_y], 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 50))
-	
-	
+
+
 	label = myfont.render("Start: ("+str(start_x)+","+str(start_y)+")", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 80))
 	label = myfont.render("Goal: ("+str(goal_x)+","+str(goal_y)+")", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 100))
-	
+
 	if pathcost != 0:
 		label = myfont.render("Path Cost:", 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 130))
 		label = myfont.render(str(pathcost), 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 150))
-	
+
 	if pathcost != 0:
 		label = myfont.render("Nodes Expanded:", 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 170))
 		label = myfont.render(str(nodes_expanded), 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 190))
-	
+
 	if (cursor_x,cursor_y) in fn_f:
 		label = myfont.render("f: "+str(fn_f[(cursor_x,cursor_y)]), 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 220))
-	
+
 	if (cursor_x,cursor_y) in fn_g:
 		label = myfont.render("g: "+str(fn_g[(cursor_x,cursor_y)]), 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 240))
-	
+
 	if (cursor_x,cursor_y) in fn_h:
 		label = myfont.render("h: "+str(fn_h[(cursor_x,cursor_y)]), 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, 260))
-	
+
 	label = myfont.render("Time: ", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 290))
 	label = myfont.render(str(elapsedtime*1000)+" ms", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 310))
-	
+
 	label = myfont.render("Neighbors:", 1, (0,0,0))
 	GameScreen.blit(label, (10+blockwidth*GridCols+30, 340))
-	
+
 	draw_y = 360
 	neighbors = getNeighbors(cursor_x,cursor_y)
-	
+
 	for neighbor in neighbors:
 		label = myfont.render("("+str(neighbor[0])+","+str(neighbor[1])+")", 1, (0,0,0))
 		GameScreen.blit(label, (10+blockwidth*GridCols+30, draw_y))
 		draw_y += 20
-	
+
 	# Draw Final Path and Closed List
 	if mode == 1:
 		for cell in closed_list:
 			pygame.draw.circle(GameScreen, (0,255,0), (cell[0]*blockwidth+blockwidth/2+10,cell[1]*blockwidth+blockwidth/2+10),blockwidth/4, 0)
 	for cell in path:
 		pygame.draw.circle(GameScreen, (255,0,0), (cell[0]*blockwidth+blockwidth/2+10,cell[1]*blockwidth+blockwidth/2+10),blockwidth/4, 0)
-	
+
 	pygame.display.update()
-	
+
 # Get neighbors of a cell
 def getNeighbors(x,y):
 	myneighbors = [(x-1,y-1),(x,y-1),(x+1,y-1),(x-1,y),(x+1,y),(x-1,y+1),(x,y+1),(x+1,y+1)]
 	myneighbors[:] = [neighbor for neighbor in myneighbors if neighbor[0]>=0 and neighbor[1]>=0 and neighbor[0]<GridCols and neighbor[1]<GridRows and grid[neighbor[0]][neighbor[1]] != '0']
-	
+
 	return myneighbors
 
 def cost(currx, curry, nextx, nexty):
-    
+
     cost = 0.0
-    
+
     if (grid[currx][curry] == 'a' or grid[currx][curry] == '1') and (grid[nextx][nexty] == 'a' or grid[nextx][nexty] == '1'):
         if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
             #traversing unblocked diagonally
@@ -337,9 +337,9 @@ def cost(currx, curry, nextx, nexty):
         cost = cost / 4
         return cost
     if cost == 0.0:
-        print "Could not find cost value. Current: " + str(currx) + ", " + str(curry) + " of type: " + grid[currx][curry] + "/Next: " + str(nextx) + ", " + str(nexty) + " of type: " + grid[nextx][nexty]
-    
-    
+        print "Could not find cost value. Current: " + str(currx) + ", " + str(curry) + " of type: " + str(grid[currx][curry]) + "/Next: " + str(nextx) + ", " + str(nexty) + " of type: " + str(grid[nextx][nexty])
+
+
     return cost
 
     '''if grid[currx][curry] == '1' and grid[nextx][nexty] =='1':
@@ -368,7 +368,7 @@ def cost(currx, curry, nextx, nexty):
     #highways - horizonatal or vertical between highways on unblocked cells
     if grid[currx][curry] == 'a' and grid[nextx][nexty] == 'a' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
         return 0.25
-    
+
     if grid[currx][curry] == 'b' and grid[currx][nexty] == 'b' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
         return 0.5
     if ((grid[currx][curry] == 'a' or grid[nextx][nexty] == 'a') and (grid[currx][curry] == 'b' or grid[nextx][nexty] == 'b')) and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
@@ -379,8 +379,8 @@ def cost(currx, curry, nextx, nexty):
         #diagonal movement between unblocked highway and unblocked cell
         if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
             return math.sqrt(2)
-        #horizontal or vertical movement 
-        else: 
+        #horizontal or vertical movement
+        else:
             return 1
     #disembark from unblocked highway to hard to traverse cell or hard to traverse highway into unblocked cell
     if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '2') or (grid[currx][curry] == 'b' and grid[nextx][nexty] == '1'):
@@ -388,7 +388,7 @@ def cost(currx, curry, nextx, nexty):
         if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
             return 0.5 * (math.sqrt(8) + math.sqrt(2))
         #horizontal or vertical between unblocked highway and hard to traverse cell
-        else: 
+        else:
             return 1.5
     #disembark from hard to traverse highway into hard to traverse cell
     if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2') or (grid[currx][curry] == '2' and grid[nextx][nexty] == 'b'):
@@ -410,13 +410,13 @@ class Coordinate:
 		self.x = x
 		self.y = y
 		self.parent = parent
-		
+
 	def get_x(self):
 		return self.x
-		
+
 	def get_y(self):
 		return self.y
-	
+
 	def get_parent(self):
 		return self.parent
 
@@ -427,11 +427,16 @@ class PriorityQueue:
 	def empty(self):
 		return len(self.elements) == 0
 
-	def put(self, item, priority):
+	def put(self, priority, item):
 		heapq.heappush(self.elements, (priority, item))
 
 	def get(self):
 		return heapq.heappop(self.elements)[1]
+
+	def getFull(self):
+		if self.empty() == False:
+			return heapq.heappop(self.elements)
+		return -1
 
 def heuristic(startx, starty, goalx, goaly, choice):
 	start = (startx, starty)
@@ -440,11 +445,11 @@ def heuristic(startx, starty, goalx, goaly, choice):
     #print "choice is: " + str(choice)
         #print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
 
-        if choice == 1: #manhattan
+        if choice == 2: #manhattan
                 heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
                 heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
                 return heuristic
-        if choice == 2: #euclidean
+        if choice == 1: #euclidean
                 heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
                 heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
                 return heuristic
@@ -465,7 +470,7 @@ def heuristic(startx, starty, goalx, goaly, choice):
         if choice == 6: #Best - minimum of all
                 dx = abs(int(startx) - int(goalx))
                 dy = abs(int(starty) - int(goaly))
-                h1 = dx + dy 
+                h1 = dx + dy
                 h2 = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
                 h3 = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
                 h4 = max(dx, dy)
@@ -479,7 +484,7 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 	fringe = PriorityQueue()
 	start = Coordinate(startx, starty, None)
 	goal = (goalx, goaly)
-	fringe.put(start, 0)
+	fringe.put(0, start)
 
 	closed_list = {}
 	cost_added = {}
@@ -498,21 +503,21 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 		#print "got current from fringe with x %d and y %d" % current[0], current[1]
 		if (current.get_x(),current.get_y()) == goal:
 			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
-			
+
 			# Make a straight path from goal to start
 			PathNode = current
-			
+
 			while PathNode != None:
 				final_path.append((PathNode.get_x(),PathNode.get_y()))
 				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
 				PathNode = PathNode.get_parent()
-		
+
 			break
 
 		for next in getNeighbors(current.get_x(), current.get_y()):
 			#print "current x %d current y %d" % current[0], current[1]
 			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
-			
+
 			if next not in cost_added or new_cost < cost_added[next]:
 			#if next not in closed_list or new_cost < cost_added[next]:
 				cost_added[next] = new_cost		# g
@@ -520,7 +525,7 @@ def a_star_search(startx, starty, goalx, goaly, choice):
 				priority = new_cost + myheuristic
 				heuristic_list[next] = myheuristic
 				priority_list[next] = priority
-				fringe.put(Coordinate(next[0],next[1],current), priority)
+				fringe.put(priority, Coordinate(next[0],next[1],current))
 				closed_list[next] = current
         mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
 	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
@@ -530,7 +535,7 @@ def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
 	fringe = PriorityQueue()
 	start = Coordinate(startx, starty, None)
 	goal = (goalx, goaly)
-	fringe.put(start, 0)
+	fringe.put(0, start)
 
 	closed_list = {}
 	cost_added = {}
@@ -544,27 +549,27 @@ def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
 	# g = cost_added[]
 	# h = heuristic
         weight = float(weight)
-	
+
 	while not fringe.empty():
 		current = fringe.get()
 		#print "got current from fringe with x %d and y %d" % current[0], current[1]
 		if (current.get_x(),current.get_y()) == goal:
 			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
-			
+
 			# Make a straight path from goal to start
 			PathNode = current
-			
+
 			while PathNode != None:
 				final_path.append((PathNode.get_x(),PathNode.get_y()))
 				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
 				PathNode = PathNode.get_parent()
-		
+
 			break
 
 		for next in getNeighbors(current.get_x(), current.get_y()):
 			#print "current x %d current y %d" % current[0], current[1]
 			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
-			
+
 			if next not in cost_added or new_cost < cost_added[next]:
 			#if next not in closed_list or new_cost < cost_added[next]:
 				cost_added[next] = new_cost		# g
@@ -572,7 +577,7 @@ def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
 				priority = new_cost + (weight * myheuristic) #added a weight
 				heuristic_list[next] = myheuristic
 				priority_list[next] = priority
-				fringe.put(Coordinate(next[0],next[1],current), priority)
+				fringe.put(priority, Coordinate(next[0],next[1],current))
 				closed_list[next] = current
 
         mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
@@ -583,7 +588,7 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 	fringe = PriorityQueue()
 	start = Coordinate(startx, starty, None)
 	goal = (goalx, goaly)
-	fringe.put(start, 0)
+	fringe.put(0, start)
 
 	closed_list = {}
 	cost_added = {}
@@ -596,14 +601,14 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 	# f = priority_list[]
 	# g = cost_added[]
 	# h = heuristic
-	
+
 	while not fringe.empty():
 		current = fringe.get()
 		#print "got current from fringe with x %d and y %d" % current[0], current[1]
-		
+
                 if (current.get_x(),current.get_y()) == goal:
 			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
-			
+
 			# Make a straight path from goal to start
 			PathNode = current
 
@@ -617,7 +622,7 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 		for next in getNeighbors(current.get_x(), current.get_y()):
 			#print "current x %d current y %d" % current[0], current[1]
 			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
-			
+
 			if next not in cost_added or new_cost < cost_added[next]:
 			#if next not in closed_list or new_cost < cost_added[next]:
 				cost_added[next] = new_cost  # g value
@@ -625,11 +630,192 @@ def uniform_cost_search(startx, starty, goalx, goaly):
 				priority = new_cost + myheuristic
 				heuristic_list[next] = myheuristic
 				priority_list[next] = priority
-				fringe.put(Coordinate(next[0],next[1],current), priority)
+				fringe.put(priority, Coordinate(next[0],next[1],current))
 				closed_list[next] = current
 
         mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
 	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
+
+
+class SequentialAStarSearch(object):
+	def Search(self,startx, starty, goalx, goaly, notused):
+		fringe = [PriorityQueue() for x in range(5)]
+		start = Coordinate(startx, starty, None)
+		goal = (goalx, goaly)
+
+		closed_list = [dict() for y in range (0,5)]
+		cost_added = [dict() for y in range (0,5)]
+		heuristic_list = [dict() for y in range(0,5)]
+		final_path = []
+		priority_list = [dict() for y in range(0,5)]
+		w2 = 1.15 #weight
+		path_cost = 0
+		'''closed_list = {}
+		cost_added = {}
+		final_path = []
+		heuristic_list = {}
+		priority_list = {}
+		closed_list[(start.get_x(),start.get_y())] = None
+		cost_added[(start.get_x(),start.get_y())] = 0
+		'''
+		for i in range(0, 5):
+			closed_list[i] = {}
+			cost_added[i] = {}
+			heuristic_list[i] = {}
+			for next in getNeighbors(start.get_x(), start.get_y()):
+				#print "current x %d current y %d" % current[0], current[1]
+				new_cost = cost(start.get_x(), start.get_y(), next[0], next[1])
+				if next not in cost_added[i] or new_cost < cost_added[i][next]:
+					#if next not in closed_list or new_cost < cost_added[next]:
+					cost_added[i][next] = new_cost		# g
+					myheuristic = self.heuristic(next[0], next[1], goal_x, goal_y, i+1)
+					priority = new_cost + myheuristic
+					heuristic_list[i][next] = myheuristic
+					priority_list[i][next] = priority
+					fringe[i].put(priority, Coordinate(next[0],next[1],start))
+					closed_list[i][next] = start
+			closed_list[i][(start.get_x(), start.get_y())] = None
+			cost_added[i][(start.get_x(), start.get_y())] = 0
+			cost_added[i][(goalx, goaly)] = float("inf")
+		# f = priority_list[]
+		# g = cost_added[]
+		# h = heuristic
+		anchor = fringe[0].getFull()
+		while not fringe[0].empty():
+			for i in range(1, 5):
+				#anchor is a tuple (priority, item)
+
+				temp = fringe[i].getFull() #temp is a tuple (item, priority)
+				#print "x,y of anchor is: ("+str(anchor[1].get_x())+","+str(anchor[1].get_y())+")"
+				#print "x,y of temp is: (" + str(temp[1].get_x()) + ","+str(temp[1].get_y())+")"
+				#print "priority/key of anchor is: " + str(anchor[0])
+				#print "priority/key of temp is: " + str(temp[0])
+
+				#[0] = priority
+				#[1] = item
+
+				if temp != -1 and temp[0] <= w2*anchor[0]: #main condition
+					#print "Not using anchor"
+					if temp[1].get_x() == goalx and temp[1].get_y() == goaly:
+							# Found goal, return path
+							print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+							path_cost = 0
+							# Make a straight path from goal to start
+							PathNode = temp[1]
+							old_x = PathNode.get_x()
+							old_y = PathNode.get_y()
+							final_path.append((old_x,old_y))
+							PathNode = PathNode.get_parent()
+
+							while PathNode != None:
+								path_cost += cost(PathNode.get_x(),PathNode.get_y(),old_x,old_y)
+								final_path.append((PathNode.get_x(),PathNode.get_y()))
+								#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+								old_x = PathNode.get_x()
+								old_y = PathNode.get_y()
+								PathNode = PathNode.get_parent()
+
+							#break
+							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
+					else:
+						#print "adding to fringe[" + str(i)+"]"
+						for next in getNeighbors(temp[1].get_x(), temp[1].get_y()):
+							#print "current x %d current y %d" % current[0], current[1]
+							new_cost = cost_added[i][(temp[1].get_x(),temp[1].get_y())] + cost(temp[1].get_x(), temp[1].get_y(), next[0], next[1])
+
+							if next not in cost_added[i] or new_cost < cost_added[i][next]:
+								#print "Added neighbor to queues"
+								#if next not in closed_list or new_cost < cost_added[next]:
+								cost_added[i][next] = new_cost		# g
+								myheuristic = self.heuristic(next[0], next[1], goalx, goaly, i+1)
+								priority = new_cost + myheuristic
+								heuristic_list[i][next] = myheuristic
+								priority_list[i][next] = priority
+								fringe[i].put(priority, Coordinate(next[0],next[1],temp[1]))
+								closed_list[i][next] = temp[1]
+
+				else:
+					#print "------------- Reached the else condition, using fringe[0] ---------------"
+					if anchor[1].get_x() == goalx and anchor[1].get_y() == goaly:
+							# Found goal, return path
+							print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+							path_cost = 0
+							# Make a straight path from goal to start
+							PathNode = anchor[1]
+							old_x = PathNode.get_x()
+							old_y = PathNode.get_y()
+							final_path.append((old_x,old_y))
+							PathNode = PathNode.get_parent()
+
+							while PathNode != None:
+								path_cost += cost(PathNode.get_x(),PathNode.get_y(),old_x,old_y)
+								final_path.append((PathNode.get_x(),PathNode.get_y()))
+								#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+								old_x = PathNode.get_x()
+								old_y = PathNode.get_y()
+								PathNode = PathNode.get_parent()
+							#break
+							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
+					else:
+						#print "-------------- adding to fringe[0] ---------------"
+						for next in getNeighbors(anchor[1].get_x(), anchor[1].get_y()):
+							#print "current x %d current y %d" % current[0], current[1]
+							new_cost=cost_added[0][(anchor[1].get_x(), anchor[1].get_y())]+cost(anchor[1].get_x(),anchor[1].get_y(),next[0],next[1])
+
+							if next not in cost_added[0] or new_cost < cost_added[0][next]:
+								#print "Added neighbor to anchor"
+							#if next not in closed_list or new_cost < cost_added[next]:
+								cost_added[0][next] = new_cost		# g
+								myheuristic = self.heuristic(next[0], next[1], goalx, goaly, 1)
+								priority = new_cost + myheuristic
+								heuristic_list[0][next] = myheuristic
+								priority_list[0][next] = priority
+								fringe[0].put(priority, Coordinate(next[0],next[1],anchor[1]))
+								closed_list[0][next] = anchor[1]
+					anchor = fringe[0].getFull()
+
+
+		return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
+
+	def heuristic(self,startx,starty,goalx,goaly,choice):
+		start = (startx, starty)
+		goal = (goalx, goaly)
+		choice = int(choice)
+
+		if choice == 2: #manhattan
+				heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
+				heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+				return heuristic
+		if choice == 1: #euclidean
+				heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+				heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+				return heuristic
+		if choice == 3: #octile
+				dx = abs(int(startx) - int(goalx))
+				dy = abs(int(starty) - int(goaly))
+				heuristic = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+				heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+				return heuristic
+		if choice == 4: #Chebyshev
+				heuristic = max(abs(startx - goalx), abs(starty - goaly))
+				heuristic *= (1.0 + (0.25/160))
+				return heuristic
+		if choice == 5: #5th heuristic
+				heuristic = math.sqrt(2)*min(abs(startx - goalx), abs(starty - goaly)) + max(abs(startx - goalx), abs(starty - goaly)) - min(abs(startx - goalx), abs(starty - goaly))
+				heuristic *= (1.0 + (0.25/160))
+				return heuristic
+		if choice == 6: #Best - minimum of all
+				dx = abs(int(startx) - int(goalx))
+				dy = abs(int(starty) - int(goaly))
+				h1 = dx + dy
+				h2 = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+				h3 = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+				h4 = max(dx, dy)
+				h5 = math.sqrt(2)*min(dx, dy) + max(dx, dy) - min(dx, dy)
+				h6 = min(h1, h2, h3, h4, h5)
+				h6 *= (1.0 + (0.25/160))
+				return h6
+		return 0
 
 # Main loop
 running = True
@@ -690,16 +876,16 @@ while(running):
 					mapfile.write("\n")
 					mapfile.write(str((goal_x,goal_y)))			# Write goal
 					mapfile.write("\n")
-					
+
 					for area in areacoordinates:				# Write hard to traverse area centers
-						mapfile.write(str((area[0],area[1])))		
+						mapfile.write(str((area[0],area[1])))
 						mapfile.write("\n")
-					
+
 					for y in range(len(grid[x])):				# Write each cell
-						for x in range(len(grid)):					
-							mapfile.write(str(grid[x][y]))		
+						for x in range(len(grid)):
+							mapfile.write(str(grid[x][y]))
 						mapfile.write("\n")
-					
+
 					mapfile.close()
 				print "Map saved!"
 			elif event.key == pygame.K_l:
@@ -712,18 +898,18 @@ while(running):
 					new_goal = make_tuple(mapfile.readline())
 					goal_x = new_goal[0]
 					goal_y = new_goal[1]
-					
+
 					areacoordinates = []
-					
+
 					for i in range(8):
 						new_area = make_tuple(mapfile.readline())
 						areacoordinates.append((new_area[0],new_area[1]))
-					
+
 					for y in range(len(grid[x])):				# Read each cell
-						for x in range(len(grid)):					
+						for x in range(len(grid)):
 							grid[x][y] = mapfile.read(1)
 						mapfile.read(1)
-					
+
 					mapfile.close()
 				final_path = []
 				closed_list = []
@@ -777,74 +963,99 @@ while(running):
 					choice = raw_input("Enter (1) for Manhattan distance, (2) for Euclidean Distance, (3) for Octile Distance, (4) for Chebyshev Distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
 				while float(weight) < 1:
 					weight = raw_input("Enter the selected weight for Weighted A* - must be >= 1: ")
-				
+
 				start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
 				elapsed_time = time.time() - start_time
-				
+
 				nodes_expanded = len(closed_list)
-    
-                        elif event.key == pygame.K_d:
-                            fo = open("diagnostics.txt", "w")
-                            for num in range (1, 11):
-                                if num < 10:
-                                    filename = "map5_0"+str(num) #change map prefix to match the series
-                                if num == 10:
-                                    filename = "map5_10" #change here too
-                                with open(os.path.join("./gen",filename),"r") as mapfile: #changed to allow using /maps folder
-					new_start = make_tuple(mapfile.readline())
-					start_x = new_start[0]
-					start_y = new_start[1]
-					new_goal = make_tuple(mapfile.readline())
-					goal_x = new_goal[0]
-					goal_y = new_goal[1]
-					areacoordinates = []
-					for i in range(8):
-						new_area = make_tuple(mapfile.readline())
-						areacoordinates.append((new_area[0],new_area[1]))
-					for y in range(len(grid[x])):				# Read each cell
-						for x in range(len(grid)):					
-							grid[x][y] = mapfile.read(1)
-						mapfile.read(1)
-				        mapfile.close()
-				final_path = []
+
+			elif event.key == pygame.K_q:		# -------- Sequential A* Search --------
+				#sequential search goes here
+				print "Sequential Search"
+				MySearch = SequentialAStarSearch()
+				start_time = time.time()
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x,start_y,goal_x, goal_y, 1)
 				closed_list = []
-				cell_costs = []
-				priority_list = []
-				heuristic_list = []
-			        path_cost = 0
-			        elapsed_time = 0
-		                nodes_expanded = 0
-		                GridSurface = drawGrid(GridSurface)
-                                
-                                start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
-			        elapsed_time = time.time() - start_time
-                                fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem) + "\n")
-                                
-                                
-                                for choice in range(1, 6):
-                                    start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
-                                    elapsed_time = time.time() - start_time
-                                    fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
-                                    fo.write("\n")
-                               
-                                weight = 1.25
-                                for choice in range (1, 6):
-                                    start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
-                                    elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
-                                    fo.write("\n")
-                                weight = 2
-                                for choice in range (1, 6):
-                                    start_time = time.time()
-                                    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
-                                    elapsed_time = time.time() - start_time 
-                                    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
-                                    fo.write("\n")
-                            fo.close()
+				elapsed_time = time.time() - start_time
+
+			elif event.key == pygame.K_d:
+				fo = open("diagnostics.txt", "w")
+				for num in range (1, 11):
+					if num < 10:
+						filename = "map5_0"+str(num) #change map prefix to match the series
+					if num == 10:
+						filename = "map5_10" #change here too
+					with open(os.path.join("./gen/",filename),"r") as mapfile: #changed to allow using /maps folder
+						new_start = make_tuple(mapfile.readline())
+						start_x = new_start[0]
+						start_y = new_start[1]
+						new_goal = make_tuple(mapfile.readline())
+						goal_x = new_goal[0]
+						goal_y = new_goal[1]
+
+						areacoordinates = []
+						for i in range(8):
+							new_area = make_tuple(mapfile.readline())
+							areacoordinates.append((new_area[0],new_area[1]))
+
+						for y in range(len(grid[x])):				# Read each cell
+							for x in range(len(grid)):
+								grid[x][y] = mapfile.read(1)
+							mapfile.read(1)
+						mapfile.close()
+					final_path = []
+					closed_list = []
+					cell_costs = []
+					priority_list = []
+					heuristic_list = []
+					path_cost = 0
+					elapsed_time = 0
+					nodes_expanded = 0
+					GridSurface = drawGrid(GridSurface)
+
+					print "Performing UCS on map: " + filename
+					start_time = time.time()
+					closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+					elapsed_time = time.time() - start_time
+					fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem) + "\n")
+
+
+					for choice in range(1, 6):
+						print "Performing A* on map: " + str(filename) + " with Heuristic: " + str(choice)
+						start_time = time.time()
+						closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+						elapsed_time = time.time() - start_time
+						fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
+						fo.write("\n")
+
+					weight = 1.25
+					for choice in range (1, 6):
+					    print "Performing Weighted A* on map: " + filename + " with Heuristic: " + str(choice) + " and weight " + str(weight)
+					    start_time = time.time()
+					    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+					    elapsed_time = time.time() - start_time
+					    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
+					    fo.write("\n")
+					weight = 2
+					for choice in range (1, 6):
+					    print "Performing Weighted A* on map: " + filename + " with Heuristic: " + str(choice) + " and weight " + str(weight)
+					    start_time = time.time()
+					    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+					    elapsed_time = time.time() - start_time
+					    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
+					    fo.write("\n")
+
+					print "Performing Sequential A* on map: " + filename
+					mySearch = SequentialAStarSearch()
+					start_time = time.time()
+					closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = mySearch.Search(start_x,start_y,goal_x, goal_y, 1)
+					closed_list = []
+					elapsed_time = time.time() - start_time
+					fo.write(str(filename) + "\t" + "Sequential Heuristics A*" + "\t(All)\t" + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t")
+					fo.write("\n")
+
+				fo.close()
 
 
 		drawScreen(GridSurface,closed_list,final_path,path_cost,nodes_expanded,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
