@@ -379,7 +379,10 @@ class PriorityQueue:
 		return heapq.heappop(self.elements)[0]
 
 	def getFull(self):
-		return heapq.heappop(self.elements)
+		if self.empty() == False:
+			return heapq.heappop(self.elements)
+		return -1
+		
 
 def heuristic(self,startx,starty,goalx,goaly,choice):
 	start = (startx, starty)
@@ -538,7 +541,7 @@ class SequentialAStarSearch(object):
 		heuristic_list = [dict() for y in range(0,5)]
 		final_path = []
 		priority_list = [dict() for y in range(0,5)]
-		w2 = 1.5 #weight
+		w2 = 1.15 #weight
 		path_cost = 0
 		'''closed_list = {}
 		cost_added = {}
@@ -584,7 +587,8 @@ class SequentialAStarSearch(object):
 				#[0] = priority
 				#[1] = item
 
-				if temp[0] <= w2*anchor[0]: #main condition
+				if temp != -1 and temp[0] <= w2*anchor[0]: #main condition
+					#print "Not using anchor"
 					if temp[1].get_x() == goalx and temp[1].get_y() == goaly:
 							# Found goal, return path
 							print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
@@ -627,7 +631,7 @@ class SequentialAStarSearch(object):
 					#print "------------- Reached the else condition, using fringe[0] ---------------"
 					if anchor[1].get_x() == goalx and anchor[1].get_y() == goaly:
 							# Found goal, return path
-							#print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+							print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
 							path_cost = 0
 							# Make a straight path from goal to start
 							PathNode = anchor[1]
@@ -866,7 +870,7 @@ while(running):
 				MySearch = SequentialAStarSearch()
 				start_time = time.time()
 				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x,start_y,goal_x, goal_y, 1)
-
+				closed_list = []
 				elapsed_time = time.time() - start_time
 
 
