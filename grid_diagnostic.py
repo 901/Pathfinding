@@ -1034,7 +1034,7 @@ while(running):
 					nodes_expanded = 0
 					GridSurface = drawGrid(GridSurface)
 
-					'''print "Performing UCS on map: " + filename
+					print "Performing UCS on map: " + filename
 					MySearch = UniformCostSearch()
 					start_time = time.time()
 					closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = MySearch.Search(start_x, start_y, goal_x, goal_y)
@@ -1068,7 +1068,7 @@ while(running):
 					    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = MySearch.Search(start_x, start_y, goal_x, goal_y, choice)
 					    elapsed_time = time.time() - start_time
 					    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
-					    fo.write("\n")'''
+					    fo.write("\n")
 
 					print "Performing Sequential A* on map: " + filename
 					mySearch = SequentialAStarSearch()
