@@ -576,10 +576,10 @@ class SequentialAStarSearch(object):
 				#anchor is a tuple (priority, item)
 
 				temp = fringe[i].getFull() #temp is a tuple (item, priority)
-				print "x,y of anchor is: ("+str(anchor[1].get_x())+","+str(anchor[1].get_y())+")"
-				print "x,y of temp is: (" + str(temp[1].get_x()) + ","+str(temp[1].get_y())+")"
-				print "priority/key of anchor is: " + str(anchor[0])
-				print "priority/key of temp is: " + str(temp[0])
+				#print "x,y of anchor is: ("+str(anchor[1].get_x())+","+str(anchor[1].get_y())+")"
+				#print "x,y of temp is: (" + str(temp[1].get_x()) + ","+str(temp[1].get_y())+")"
+				#print "priority/key of anchor is: " + str(anchor[0])
+				#print "priority/key of temp is: " + str(temp[0])
 
 				#[0] = priority
 				#[1] = item
@@ -603,15 +603,17 @@ class SequentialAStarSearch(object):
 								old_x = PathNode.get_x()
 								old_y = PathNode.get_y()
 								PathNode = PathNode.get_parent()
-								break
+							
+							#break
+							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
 					else:
-						print "adding to fringe[" + str(i)+"]"
+						#print "adding to fringe[" + str(i)+"]"
 						for next in getNeighbors(temp[1].get_x(), temp[1].get_y()):
 							#print "current x %d current y %d" % current[0], current[1]
 							new_cost = cost_added[i][(temp[1].get_x(),temp[1].get_y())] + cost(temp[1].get_x(), temp[1].get_y(), next[0], next[1])
 
 							if next not in cost_added[i] or new_cost < cost_added[i][next]:
-								print "Added neighbor to queues"
+								#print "Added neighbor to queues"
 								#if next not in closed_list or new_cost < cost_added[next]:
 								cost_added[i][next] = new_cost		# g
 								myheuristic = self.heuristic(next[0], next[1], goalx, goaly, i+1)
@@ -622,10 +624,10 @@ class SequentialAStarSearch(object):
 								closed_list[i][next] = temp[1]
 
 				else:
-					print "------------- Reached the else condition, using fringe[0] ---------------"
+					#print "------------- Reached the else condition, using fringe[0] ---------------"
 					if anchor[1].get_x() == goalx and anchor[1].get_y() == goaly:
 							# Found goal, return path
-							print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+							#print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
 							path_cost = 0
 							# Make a straight path from goal to start
 							PathNode = anchor[1]
@@ -641,15 +643,16 @@ class SequentialAStarSearch(object):
 								old_x = PathNode.get_x()
 								old_y = PathNode.get_y()
 								PathNode = PathNode.get_parent()
-								break
+							#break
+							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
 					else:
-						print "-------------- adding to fringe[0] ---------------"
+						#print "-------------- adding to fringe[0] ---------------"
 						for next in getNeighbors(anchor[1].get_x(), anchor[1].get_y()):
 							#print "current x %d current y %d" % current[0], current[1]
 							new_cost=cost_added[0][(anchor[1].get_x(), anchor[1].get_y())]+cost(anchor[1].get_x(),anchor[1].get_y(),next[0],next[1])
 
 							if next not in cost_added[0] or new_cost < cost_added[0][next]:
-								print "Added neighbor to anchor"
+								#print "Added neighbor to anchor"
 							#if next not in closed_list or new_cost < cost_added[next]:
 								cost_added[0][next] = new_cost		# g
 								myheuristic = self.heuristic(next[0], next[1], goalx, goaly, 1)
