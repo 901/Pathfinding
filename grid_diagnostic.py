@@ -5,7 +5,13 @@ CS440 Project 1 Phase 1 - Pathfinding
 We compare A*, Weighted A* and Uniform-Cost under 5 different Heuristics in a maze generated
 using Pygame.
 In the maze, there will be different types of terrains, and the aim of Phase 1 will be to see
-which heuristics and search algorithms provide the best results in terms of optimality and efficiency
+which heuristics and search algorithms provide the best results in terms of optimality and efficiencyr
+
+Project 1 Phase 2 - Sequential and Integrated heuristics with A*
+@Description: In Phase 2, we implement sequential heuristics using (n) priority queues, each with different
+heuristic functions. With this, we can select the best possible expansion in a round robin fashion until
+values from the queue are no longer admissible to the condition. We also implement Integrated heuristics which
+uses two queues instead of (n) queues.
 '''
 
 
@@ -16,7 +22,6 @@ import os
 import math
 import time
 import resource
-import sys
 from random import randint
 from ast import literal_eval as make_tuple
 
@@ -182,7 +187,7 @@ def generateStartFinish():
 	start_y = y
 
 	# Generate Finish
-        while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0' or math.sqrt((x-start_x)**2+(y-start_y)**2)<100:
+	while grid[x][y]=='a' or grid[x][y]=='b' or grid[x][y]=='0' or math.sqrt((x-start_x)**2+(y-start_y)**2)<100:
 		x = randint(0,39)
 		y = randint(0,39)
 		if x>20:
@@ -302,106 +307,44 @@ def getNeighbors(x,y):
 	return myneighbors
 
 def cost(currx, curry, nextx, nexty):
+	cost = 0.0
 
-    cost = 0.0
-
-    if (grid[currx][curry] == 'a' or grid[currx][curry] == '1') and (grid[nextx][nexty] == 'a' or grid[nextx][nexty] == '1'):
-        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            #traversing unblocked diagonally
-            cost = math.sqrt(2)
-        else:
-            #traversing unblocked diagonally
-            cost = 1
-    if (grid[currx][curry] == 'b' or grid[currx][curry] == '2') and (grid[nextx][nexty] == '2' or grid[nextx][nexty] == 'b'):
-        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            #traversing unblocked diagonally
-            cost = math.sqrt(8)
-        else:
-            #traversing unblocked diagonally
-            cost = 2
-    if (grid[currx][curry] == 'a' or grid[currx][curry] == '1') and (grid[nextx][nexty] == '2' or grid[nextx][nexty] == 'b'):
-        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            #traversing unblocked diagonally
-            cost = (math.sqrt(2) + math.sqrt(8)) / 2
-        else:
-            #traversing unblocked diagonally
-            cost = 1.5
-    if (grid[currx][curry] == '2' or grid[currx][curry] == 'b') and (grid[nextx][nexty] == '1' or grid[nextx][nexty] == 'a'):
-        if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            #traversing unblocked diagonally
-            cost = (math.sqrt(2) + math.sqrt(8)) / 2
-        else:
-            #traversing unblocked diagonally
-            cost = 1.5
-    if (grid[currx][curry] == 'a' or grid[currx][curry] == 'b') and (grid[nextx][nexty] == 'a' or grid[nextx][nexty] == 'b') and (((currx == nextx + 1 or currx == nexty - 1) and curry == nexty) or ((curry == nexty + 1 or curry == nexty - 1) and currx == nextx)):
-        cost = cost / 4
-        return cost
-    if cost == 0.0:
-        print "Could not find cost value. Current: " + str(currx) + ", " + str(curry) + " of type: " + str(grid[currx][curry]) + "/Next: " + str(nextx) + ", " + str(nexty) + " of type: " + str(grid[nextx][nexty])
+	if (grid[currx][curry] == 'a' or grid[currx][curry] == '1') and (grid[nextx][nexty] == 'a' or grid[nextx][nexty] == '1'):
+		if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+			#traversing unblocked diagonally
+			cost = math.sqrt(2)
+		else:
+			#traversing unblocked diagonally
+			cost = 1
+	if (grid[currx][curry] == 'b' or grid[currx][curry] == '2') and (grid[nextx][nexty] == '2' or grid[nextx][nexty] == 'b'):
+		if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+			#traversing unblocked diagonally
+			cost = math.sqrt(8)
+		else:
+			#traversing unblocked diagonally
+			cost = 2
+	if (grid[currx][curry] == 'a' or grid[currx][curry] == '1') and (grid[nextx][nexty] == '2' or grid[nextx][nexty] == 'b'):
+		if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+			#traversing unblocked diagonally
+			cost = (math.sqrt(2) + math.sqrt(8)) / 2
+		else:
+			#traversing unblocked diagonally
+			cost = 1.5
+	if (grid[currx][curry] == '2' or grid[currx][curry] == 'b') and (grid[nextx][nexty] == '1' or grid[nextx][nexty] == 'a'):
+		if((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
+			#traversing unblocked diagonally
+			cost = (math.sqrt(2) + math.sqrt(8)) / 2
+		else:
+			#traversing unblocked diagonally
+			cost = 1.5
+	if (grid[currx][curry] == 'a' or grid[currx][curry] == 'b') and (grid[nextx][nexty] == 'a' or grid[nextx][nexty] == 'b') and (((currx == nextx + 1 or currx == nexty - 1) and curry == nexty) or ((curry == nexty + 1 or curry == nexty - 1) and currx == nextx)):
+		cost = cost / 4
+		return cost
+	if cost == 0.0:
+		print "Could not find cost value. Current: " + str(currx) + ", " + str(curry) + " of type: " + grid[currx][curry] + "/Next: " + str(nextx) + ", " + str(nexty) + " of type: " + grid[nextx][nexty]
 
 
-    return cost
-
-    '''if grid[currx][curry] == '1' and grid[nextx][nexty] =='1':
-        #diagonal between normal terrain
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return math.sqrt(2)
-        #horizontal or vertical
-        else:
-            return 1
-
-    #traverse into or between a hard-to-traverse cell
-    if grid[currx][curry] == '2' or grid[nextx][nexty] == '2':
-        #traverse diagonally between hard to traverse
-        if (grid[currx][curry] == '2' and grid[nextx][nexty] == '2') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            return math.sqrt(8)
-        #moving diagonally between regular unblocked and hard to traverse
-        elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1') and ((currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1)):
-            return 0.5 * (math.sqrt(8) + math.sqrt(2))
-        #traverse into or between hard to traverse and regular unblocked
-        elif (grid[currx][curry] == '1' or grid[nextx][nexty] == '1'):
-            return 1.5
-        #travel between two hard to traverse
-        else:
-            return 2
-
-    #highways - horizonatal or vertical between highways on unblocked cells
-    if grid[currx][curry] == 'a' and grid[nextx][nexty] == 'a' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
-        return 0.25
-
-    if grid[currx][curry] == 'b' and grid[currx][nexty] == 'b' and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
-        return 0.5
-    if ((grid[currx][curry] == 'a' or grid[nextx][nexty] == 'a') and (grid[currx][curry] == 'b' or grid[nextx][nexty] == 'b')) and (currx == nextx + 1 or currx == nextx - 1) and (curry == nexty + 1 or curry == nexty - 1):
-        return 0.375
-
-    #disembark from an unblocked highway to an unblocked cell is double
-    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '1') or (grid[currx][curry] == '1' and grid[nextx][nexty] == 'a'):
-        #diagonal movement between unblocked highway and unblocked cell
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return math.sqrt(2)
-        #horizontal or vertical movement
-        else:
-            return 1
-    #disembark from unblocked highway to hard to traverse cell or hard to traverse highway into unblocked cell
-    if (grid[currx][curry] == 'a' and grid[nextx][nexty] == '2') or (grid[currx][curry] == 'b' and grid[nextx][nexty] == '1'):
-        #diagonal between highway with unblocked cell and hard-to-traverse cell
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return 0.5 * (math.sqrt(8) + math.sqrt(2))
-        #horizontal or vertical between unblocked highway and hard to traverse cell
-        else:
-            return 1.5
-    #disembark from hard to traverse highway into hard to traverse cell
-    if (grid[currx][curry] == 'b' and grid[nextx][nexty] == '2') or (grid[currx][curry] == '2' and grid[nextx][nexty] == 'b'):
-        #hard to traverse highway into hard to traverse cell diagonal
-        if (currx == nextx - 1 or currx == nextx + 1) and (curry == nexty - 1 or curry == nexty + 1):
-            return math.sqrt(8)
-        else:
-            return 2
-    return 0'''
-
-def memory_usage():
-    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-    return mem
+	return cost
 
 # A* Stuff
 
@@ -433,212 +376,132 @@ class PriorityQueue:
 	def get(self):
 		return heapq.heappop(self.elements)[1]
 
+	def getPriority(self):
+		return heapq.heappop(self.elements)[0]
+
 	def getFull(self):
 		if self.empty() == False:
 			return heapq.heappop(self.elements)
 		return -1
 
-def heuristic(startx, starty, goalx, goaly, choice):
-	start = (startx, starty)
-        goal = (goalx, goaly)
-        choice = int(choice)
-    #print "choice is: " + str(choice)
-        #print "Heuristic is: " +  str(abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly)))
+	def remove(self, item):
+		if item in self.elements:
+			self.elements.remove(item)
+			heapq.heapify(self.elements)
+			return 0
+		return -1
 
-        if choice == 2: #manhattan
-                heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
-                heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
-                return heuristic
-        if choice == 1: #euclidean
-                heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-                heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
-                return heuristic
-        if choice == 3: #octile
-                dx = abs(int(startx) - int(goalx))
-                dy = abs(int(starty) - int(goaly))
-                heuristic = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
-                heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
-                return heuristic
-        if choice == 4: #Chebyshev
-                heuristic = max(abs(startx - goalx), abs(starty - goaly))
-                heuristic *= (1.0 + (0.25/160))
-                return heuristic
-        if choice == 5: #5th heuristic
-                heuristic = math.sqrt(2)*min(abs(startx - goalx), abs(starty - goaly)) + max(abs(startx - goalx), abs(starty - goaly)) - min(abs(startx - goalx), abs(starty - goaly))
-                heuristic *= (1.0 + (0.25/160))
-                return heuristic
-        if choice == 6: #Best - minimum of all
-                dx = abs(int(startx) - int(goalx))
-                dy = abs(int(starty) - int(goaly))
-                h1 = dx + dy
-                h2 = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-                h3 = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
-                h4 = max(dx, dy)
-                h5 = math.sqrt(2)*min(dx, dy) + max(dx, dy) - min(dx, dy)
-                h6 = min(h1, h2, h3, h4, h5)
-                h6 *= (1.0 + (0.25/160))
-                return h6
-        return 0
+#(priority, item)
+#put(priority, item)
+class AStarSearch(object):
+	def Search(self, startx, starty, goalx, goaly, choice):
+		fringe = PriorityQueue()
+		start = Coordinate(startx, starty, None)
+		goal = (goalx, goaly)
+		fringe.put(0, start)
 
-def a_star_search(startx, starty, goalx, goaly, choice):
-	fringe = PriorityQueue()
-	start = Coordinate(startx, starty, None)
-	goal = (goalx, goaly)
-	fringe.put(0, start)
+		closed_list = {}
+		cost_added = {}
+		final_path = []
+		heuristic_list = {}
+		priority_list = {}
+		closed_list[(start.get_x(),start.get_y())] = None
+		cost_added[(start.get_x(),start.get_y())] = 0
 
-	closed_list = {}
-	cost_added = {}
-	final_path = []
-	heuristic_list = {}
-	priority_list = {}
-	closed_list[(start.get_x(),start.get_y())] = None
-	cost_added[(start.get_x(),start.get_y())] = 0
+		# f = priority_list[]
+		# g = cost_added[]
+		# h = heuristic
 
-	# f = priority_list[]
-	# g = cost_added[]
-	# h = heuristic
+		while not fringe.empty():
+			current = fringe.get()
+			#print "got current from fringe with x %d and y %d" % current[0], current[1]
+			if (current.get_x(),current.get_y()) == goal:
+				print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
 
-	while not fringe.empty():
-		current = fringe.get()
-		#print "got current from fringe with x %d and y %d" % current[0], current[1]
-		if (current.get_x(),current.get_y()) == goal:
-			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+				# Make a straight path from goal to start
+				PathNode = current
 
-			# Make a straight path from goal to start
-			PathNode = current
+				while PathNode != None:
+					final_path.append((PathNode.get_x(),PathNode.get_y()))
+					#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+					PathNode = PathNode.get_parent()
 
-			while PathNode != None:
-				final_path.append((PathNode.get_x(),PathNode.get_y()))
-				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
-				PathNode = PathNode.get_parent()
+				break
 
-			break
+			for next in getNeighbors(current.get_x(), current.get_y()):
+				#print "current x %d current y %d" % current[0], current[1]
+				new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
 
-		for next in getNeighbors(current.get_x(), current.get_y()):
-			#print "current x %d current y %d" % current[0], current[1]
-			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
+				if next not in cost_added or new_cost < cost_added[next]:
+				#if next not in closed_list or new_cost < cost_added[next]:
+					cost_added[next] = new_cost		# g
+					myheuristic = self.heuristic(next[0], next[1], goal_x, goal_y, choice)
+					priority = new_cost + myheuristic
+					heuristic_list[next] = myheuristic
+					priority_list[next] = priority
+					fringe.put(priority, Coordinate(next[0],next[1],current))
+					closed_list[next] = current
 
-			if next not in cost_added or new_cost < cost_added[next]:
-			#if next not in closed_list or new_cost < cost_added[next]:
-				cost_added[next] = new_cost		# g
-				myheuristic = heuristic(next[0], next[1], goal_x, goal_y, choice)
-				priority = new_cost + myheuristic
-				heuristic_list[next] = myheuristic
-				priority_list[next] = priority
-				fringe.put(priority, Coordinate(next[0],next[1],current))
-				closed_list[next] = current
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
+		mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+		return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
 
+	def heuristic(self,startx,starty,goalx,goaly,choice):
+		start = (startx, starty)
+		goal = (goalx, goaly)
+		choice = int(choice)
 
-def weighted_a_star_search(startx, starty, goalx, goaly, choice, weight):
-	fringe = PriorityQueue()
-	start = Coordinate(startx, starty, None)
-	goal = (goalx, goaly)
-	fringe.put(0, start)
+		if choice == 2: #manhattan
+				heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
+				heuristic *= 2 #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+				return heuristic
+		if choice == 1: #euclidean
+				heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+				heuristic *= 2 #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+				return heuristic
+		if choice == 3: #octile
+				dx = abs(int(startx) - int(goalx))
+				dy = abs(int(starty) - int(goaly))
+				heuristic = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+				heuristic *= 2 #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
+				return heuristic
+		if choice == 4: #Chebyshev
+				heuristic = max(abs(startx - goalx), abs(starty - goaly))
+				heuristic *= 2
+				return heuristic
+		if choice == 5: #5th heuristic
+				heuristic = math.sqrt(2)*min(abs(startx - goalx), abs(starty - goaly)) + max(abs(startx - goalx), abs(starty - goaly)) - min(abs(startx - goalx), abs(starty - goaly))
+				heuristic *= 2
+				return heuristic
+		if choice == 6: #Best - minimum of all
+				dx = abs(int(startx) - int(goalx))
+				dy = abs(int(starty) - int(goaly))
+				h1 = dx + dy
+				h2 = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
+				h3 = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+				h4 = max(dx, dy)
+				h5 = math.sqrt(2)*min(dx, dy) + max(dx, dy) - min(dx, dy)
+				h6 = min(h1, h2, h3, h4, h5)
+				h6 *= 2
+				return h6
+		return 0
 
-	closed_list = {}
-	cost_added = {}
-	final_path = []
-	heuristic_list = {}
-	priority_list = {}
-	closed_list[(start.get_x(),start.get_y())] = None
-	cost_added[(start.get_x(),start.get_y())] = 0
+class UniformCostSearch(AStarSearch):
+	def Search(self,startx, starty, goalx, goaly):
+		return super(UniformCostSearch, self).Search(startx,starty,goalx,goaly,1)
+	def heuristic(self,startx, starty, goalx, goaly, choice):
+		return 1
 
-	# f = priority_list[]
-	# g = cost_added[]
-	# h = heuristic
-        weight = float(weight)
-
-	while not fringe.empty():
-		current = fringe.get()
-		#print "got current from fringe with x %d and y %d" % current[0], current[1]
-		if (current.get_x(),current.get_y()) == goal:
-			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
-
-			# Make a straight path from goal to start
-			PathNode = current
-
-			while PathNode != None:
-				final_path.append((PathNode.get_x(),PathNode.get_y()))
-				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
-				PathNode = PathNode.get_parent()
-
-			break
-
-		for next in getNeighbors(current.get_x(), current.get_y()):
-			#print "current x %d current y %d" % current[0], current[1]
-			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
-
-			if next not in cost_added or new_cost < cost_added[next]:
-			#if next not in closed_list or new_cost < cost_added[next]:
-				cost_added[next] = new_cost		# g
-				myheuristic = heuristic(next[0], next[1], goal_x, goal_y, choice)
-				priority = new_cost + (weight * myheuristic) #added a weight
-				heuristic_list[next] = myheuristic
-				priority_list[next] = priority
-				fringe.put(priority, Coordinate(next[0],next[1],current))
-				closed_list[next] = current
-
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
-
-# Add all the extra printing stuff to here too!!!!
-def uniform_cost_search(startx, starty, goalx, goaly):
-	fringe = PriorityQueue()
-	start = Coordinate(startx, starty, None)
-	goal = (goalx, goaly)
-	fringe.put(0, start)
-
-	closed_list = {}
-	cost_added = {}
-	final_path = []
-	heuristic_list = {}
-	priority_list = {}
-	closed_list[(start.get_x(),start.get_y())] = None
-	cost_added[(start.get_x(),start.get_y())] = 0
-
-	# f = priority_list[]
-	# g = cost_added[]
-	# h = heuristic
-
-	while not fringe.empty():
-		current = fringe.get()
-		#print "got current from fringe with x %d and y %d" % current[0], current[1]
-
-                if (current.get_x(),current.get_y()) == goal:
-			print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
-
-			# Make a straight path from goal to start
-			PathNode = current
-
-			while PathNode != None:
-				final_path.append((PathNode.get_x(),PathNode.get_y()))
-				#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
-				PathNode = PathNode.get_parent()
-
-                        break
-
-		for next in getNeighbors(current.get_x(), current.get_y()):
-			#print "current x %d current y %d" % current[0], current[1]
-			new_cost = cost_added[(current.get_x(),current.get_y())] + cost(current.get_x(), current.get_y(), next[0], next[1])
-
-			if next not in cost_added or new_cost < cost_added[next]:
-			#if next not in closed_list or new_cost < cost_added[next]:
-				cost_added[next] = new_cost  # g value
-				myheuristic = 0
-				priority = new_cost + myheuristic
-				heuristic_list[next] = myheuristic
-				priority_list[next] = priority
-				fringe.put(priority, Coordinate(next[0],next[1],current))
-				closed_list[next] = current
-
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-	return closed_list, cost_added, final_path, cost_added[(goalx,goaly)], priority_list, heuristic_list, mem
+class WeightedAStarSearch(AStarSearch):
+	def __init__(self,weight):
+		self.weight = weight
+	def heuristic(self,startx, starty, goalx, goaly, choice):
+		return super(WeightedAStarSearch, self).heuristic(startx,starty,goalx,goaly,choice) * float(self.weight)
 
 
-class SequentialAStarSearch(object):
-	def Search(self,startx, starty, goalx, goaly, notused):
+#Phase 2 Begin
+#put(priority, item)
+class SequentialAStarSearch(AStarSearch):
+	def Search(self,startx, starty, goalx, goaly):
 		fringe = [PriorityQueue() for x in range(5)]
 		start = Coordinate(startx, starty, None)
 		goal = (goalx, goaly)
@@ -648,7 +511,7 @@ class SequentialAStarSearch(object):
 		heuristic_list = [dict() for y in range(0,5)]
 		final_path = []
 		priority_list = [dict() for y in range(0,5)]
-		w2 = 1.15 #weight
+		w2 = 1.5#weight
 		path_cost = 0
 		'''closed_list = {}
 		cost_added = {}
@@ -716,7 +579,8 @@ class SequentialAStarSearch(object):
 								PathNode = PathNode.get_parent()
 
 							#break
-							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
+							mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list, mem
 					else:
 						#print "adding to fringe[" + str(i)+"]"
 						for next in getNeighbors(temp[1].get_x(), temp[1].get_y()):
@@ -755,7 +619,8 @@ class SequentialAStarSearch(object):
 								old_y = PathNode.get_y()
 								PathNode = PathNode.get_parent()
 							#break
-							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
+							mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+							return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list, mem
 					else:
 						#print "-------------- adding to fringe[0] ---------------"
 						for next in getNeighbors(anchor[1].get_x(), anchor[1].get_y()):
@@ -774,48 +639,174 @@ class SequentialAStarSearch(object):
 								closed_list[0][next] = anchor[1]
 					anchor = fringe[0].getFull()
 
+		mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+		return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list, mem
 
-		return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list
-
-	def heuristic(self,startx,starty,goalx,goaly,choice):
-		start = (startx, starty)
+class IntegratedAStarSearch(AStarSearch):
+	def Search(self,startx, starty, goalx, goaly):
+		fringe = [PriorityQueue() for x in range(5)]
+		start = Coordinate(startx, starty, None)
 		goal = (goalx, goaly)
-		choice = int(choice)
 
-		if choice == 2: #manhattan
-				heuristic = abs(int(startx) - int(goalx)) + abs(int(starty) - int(goaly))
-				heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
-				return heuristic
-		if choice == 1: #euclidean
-				heuristic = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-				heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
-				return heuristic
-		if choice == 3: #octile
-				dx = abs(int(startx) - int(goalx))
-				dy = abs(int(starty) - int(goaly))
-				heuristic = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
-				heuristic *= (1.0 + (0.25/160)) #tie-breaker by multiplying the heuristic by (minimum cost)/(max possible path length)
-				return heuristic
-		if choice == 4: #Chebyshev
-				heuristic = max(abs(startx - goalx), abs(starty - goaly))
-				heuristic *= (1.0 + (0.25/160))
-				return heuristic
-		if choice == 5: #5th heuristic
-				heuristic = math.sqrt(2)*min(abs(startx - goalx), abs(starty - goaly)) + max(abs(startx - goalx), abs(starty - goaly)) - min(abs(startx - goalx), abs(starty - goaly))
-				heuristic *= (1.0 + (0.25/160))
-				return heuristic
-		if choice == 6: #Best - minimum of all
-				dx = abs(int(startx) - int(goalx))
-				dy = abs(int(starty) - int(goaly))
-				h1 = dx + dy
-				h2 = math.sqrt(((int(startx) - int(goalx)) ** 2) + ((int(starty) - int(goaly)) ** 2))
-				h3 = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
-				h4 = max(dx, dy)
-				h5 = math.sqrt(2)*min(dx, dy) + max(dx, dy) - min(dx, dy)
-				h6 = min(h1, h2, h3, h4, h5)
-				h6 *= (1.0 + (0.25/160))
-				return h6
-		return 0
+		closed_list = {}
+		closed_list_anchor = {}
+		cost_added = {}
+		heuristic_list = [dict() for y in range(0,5)]
+		final_path = []
+		priority_list = [dict() for y in range(0,5)]
+		w2 = 1.5 # weight
+		path_cost = 0
+
+		for i in range(0, 5):
+			heuristic_list[i] = {}
+			for next in getNeighbors(start.get_x(), start.get_y()):
+				#print "current x %d current y %d" % current[0], current[1]
+				new_cost = cost(start.get_x(), start.get_y(), next[0], next[1])
+				if next not in cost_added or new_cost < cost_added[next]:
+					#if next not in closed_list or new_cost < cost_added[next]:
+					cost_added[next] = new_cost		# g
+					myheuristic = self.heuristic(next[0], next[1], goal_x, goal_y, i+1)
+					priority = new_cost + myheuristic
+					heuristic_list[i][next] = myheuristic
+					priority_list[i][next] = priority
+					fringe[i].put(priority, Coordinate(next[0],next[1],start))
+					closed_list[next] = start
+
+		closed_list[(start.get_x(), start.get_y())] = None
+		closed_list_anchor[(start.get_x(), start.get_y())] = None
+
+		cost_added[(start.get_x(), start.get_y())] = 0
+		cost_added[(goalx, goaly)] = float("inf")
+
+		# f = priority_list[]
+		# g = cost_added[]
+		# h = heuristic
+		anchor = fringe[0].getFull()
+		while not fringe[0].empty():
+			for i in range(1, 5):
+				#anchor is a tuple (priority, item)
+
+				temp = fringe[i].getFull() #temp is a tuple (item, priority)
+				#print "x,y of anchor is: ("+str(anchor[1].get_x())+","+str(anchor[1].get_y())+")"
+				#print "x,y of temp is: (" + str(temp[1].get_x()) + ","+str(temp[1].get_y())+")"
+				#print "priority/key of anchor is: " + str(anchor[0])
+				#print "priority/key of temp is: " + str(temp[0])
+
+				#[0] = priority
+				#[1] = item
+
+				if temp != -1 and temp[0] <= w2*anchor[0]: #main condition
+					#print "Not using anchor"
+					if temp[1].get_x() == goalx and temp[1].get_y() == goaly:
+							# Found goal, return path
+							print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+							path_cost = 0
+							# Make a straight path from goal to start
+							PathNode = temp[1]
+							old_x = PathNode.get_x()
+							old_y = PathNode.get_y()
+							final_path.append((old_x,old_y))
+							PathNode = PathNode.get_parent()
+
+							while PathNode != None:
+								path_cost += cost(PathNode.get_x(),PathNode.get_y(),old_x,old_y)
+								final_path.append((PathNode.get_x(),PathNode.get_y()))
+								#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+								old_x = PathNode.get_x()
+								old_y = PathNode.get_y()
+								PathNode = PathNode.get_parent()
+
+							#break
+							mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+							return [closed_list,closed_list_anchor], cost_added, final_path, path_cost, priority_list, heuristic_list, mem
+					else:
+						#print "adding to fringe[" + str(i)+"]"
+						for j in range(1,5):
+							fringe[j].remove(temp[1])
+
+						# Expand
+						for next in getNeighbors(temp[1].get_x(), temp[1].get_y()):
+							#print "current x %d current y %d" % current[0], current[1]
+							new_cost = cost_added[(temp[1].get_x(),temp[1].get_y())] + cost(temp[1].get_x(), temp[1].get_y(), next[0], next[1])
+
+							if next not in cost_added or new_cost < cost_added[next]:
+								#print "Added neighbor to queues"
+								#if next not in closed_list or new_cost < cost_added[next]:
+								cost_added[next] = new_cost		# g
+								if next not in closed_list_anchor:
+									myheuristic = self.heuristic(next[0], next[1], goalx, goaly, 0)
+									priority0 = new_cost + myheuristic
+									heuristic_list[0][next] = myheuristic
+									priority_list[0][next] = priority0
+									fringe[0].put(priority0, Coordinate(next[0],next[1],temp[1]))
+									#closed_list_anchor[next] = temp[1]
+									if next not in closed_list:
+										for j in range(1,5):
+											myheuristic = self.heuristic(next[0], next[1], goalx, goaly, i+1)
+											priority = new_cost + myheuristic
+											if priority <= w2 * priority0:
+												heuristic_list[i][next] = myheuristic
+												priority_list[i][next] = priority
+												fringe[i].put(priority, Coordinate(next[0],next[1],temp[1]))
+												closed_list[next] = temp[1]
+
+				else:
+					#print "------------- Reached the else condition, using fringe[0] ---------------"
+					if anchor[1].get_x() == goalx and anchor[1].get_y() == goaly:
+							# Found goal, return path
+							print "Made it to goal at " + str(goal[0]) + "," + str(goal[1])
+							path_cost = 0
+							# Make a straight path from goal to start
+							PathNode = anchor[1]
+							old_x = PathNode.get_x()
+							old_y = PathNode.get_y()
+							final_path.append((old_x,old_y))
+							PathNode = PathNode.get_parent()
+
+							while PathNode != None:
+								path_cost += cost(PathNode.get_x(),PathNode.get_y(),old_x,old_y)
+								final_path.append((PathNode.get_x(),PathNode.get_y()))
+								#print "Path: " + str(current.get_x()) + "," + str(current.get_y())
+								old_x = PathNode.get_x()
+								old_y = PathNode.get_y()
+								PathNode = PathNode.get_parent()
+							#break
+							mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+							return [closed_list,closed_list_anchor], cost_added, final_path, path_cost, priority_list, heuristic_list, mem
+					else:
+						#print "-------------- adding to fringe[0] ---------------"
+						for j in range(1,5):
+							fringe[j].remove(anchor[1])
+
+						# Expand
+						for next in getNeighbors(anchor[1].get_x(), anchor[1].get_y()):
+							#print "current x %d current y %d" % current[0], current[1]
+							new_cost = cost_added[(anchor[1].get_x(),anchor[1].get_y())] + cost(anchor[1].get_x(), anchor[1].get_y(), next[0], next[1])
+
+							if next not in cost_added or new_cost < cost_added[next]:
+								#print "Added neighbor to queues"
+								#if next not in closed_list or new_cost < cost_added[next]:
+								cost_added[next] = new_cost		# g
+								if next not in closed_list_anchor:
+									myheuristic = self.heuristic(next[0], next[1], goalx, goaly, 0)
+									priority0 = new_cost + myheuristic
+									heuristic_list[0][next] = myheuristic
+									priority_list[0][next] = priority0
+									fringe[0].put(priority0, Coordinate(next[0],next[1],anchor[1]))
+									closed_list_anchor[next] = anchor[1]
+									if next not in closed_list:
+										for j in range(1,5):
+											myheuristic = self.heuristic(next[0], next[1], goalx, goaly, i+1)
+											priority = new_cost + myheuristic
+											if priority <= w2 * priority0:
+												heuristic_list[i][next] = myheuristic
+												priority_list[i][next] = priority
+												fringe[i].put(priority, Coordinate(next[0],next[1],anchor[1]))
+												closed_list_anchor[next] = anchor[1]
+					anchor = fringe[0].getFull()
+
+		mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+		return closed_list, cost_added, final_path, path_cost, priority_list, heuristic_list, mem
 
 # Main loop
 running = True
@@ -834,6 +825,9 @@ path_cost = 0
 elapsed_time = 0
 drawmode = 0
 nodes_expanded = 0
+mapNum = 1;
+
+MySearch = AStarSearch() # Initialize Object
 
 while(running):
 	# Get Input
@@ -939,54 +933,80 @@ while(running):
 					drawmode = 1
 				else:
 					drawmode = 0
-			elif event.key == pygame.K_a:
-				#perform a* pathfinding
+			elif event.key == pygame.K_a:		# -------- A* Search --------
 				choice = -1
 				while int(choice) < 1 or int(choice) > 6:
-					choice = raw_input ("Enter (1) for Manhattan distance, (2) for Euclidean distance, (3) for Octile distance, (4) for Chebyshev distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
+					choice = raw_input ("Enter (1) for Euclidean distance, (2) for Manhattan distance, (3) for Octile distance, (4) for Chebyshev distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
+				MySearch = AStarSearch()
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x, start_y, goal_x, goal_y,choice)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
-			elif event.key == pygame.K_u:
-				# uniform cost pathfinding
+			elif event.key == pygame.K_u:		# -------- Uniform Cost Search --------
+				MySearch = UniformCostSearch()
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x, start_y, goal_x, goal_y)
 				elapsed_time = time.time() - start_time
 				nodes_expanded = len(closed_list)
-			elif event.key == pygame.K_w:
-				#perform weighted a* pathfinding
+			elif event.key == pygame.K_w:		# -------- Weighted A* Search --------
 				choice = -1 #heuristic choice
 				weight = 0 #weight of heuristic
 
 				while (int(choice) < 1 or int(choice) > 6):
-					choice = raw_input("Enter (1) for Manhattan distance, (2) for Euclidean Distance, (3) for Octile Distance, (4) for Chebyshev Distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
+					choice = raw_input("Enter (1) for Euclidean distance, (2) for Manhattan Distance, (3) for Octile Distance, (4) for Chebyshev Distance, (5) for Straight-Diagonal Distance, or (6) Best/Minimum of all: ")
 				while float(weight) < 1:
 					weight = raw_input("Enter the selected weight for Weighted A* - must be >= 1: ")
 
+				MySearch = WeightedAStarSearch(weight)
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x, start_y, goal_x, goal_y, choice)
 				elapsed_time = time.time() - start_time
 
 				nodes_expanded = len(closed_list)
-
 			elif event.key == pygame.K_q:		# -------- Sequential A* Search --------
 				#sequential search goes here
 				print "Sequential Search"
 				MySearch = SequentialAStarSearch()
 				start_time = time.time()
-				closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x,start_y,goal_x, goal_y, 1)
-				closed_list = []
+				closed_lists, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x,start_y,goal_x, goal_y)
 				elapsed_time = time.time() - start_time
 
+				closed_list = []
+				# Combine closed lists
+				for list in closed_lists:
+					for cell in list:
+						if cell not in closed_list:
+							closed_list.append(cell)
+				nodes_expanded = len(closed_list)
+
+			elif event.key == pygame.K_i:		# -------- Integrated A* Search --------
+				#integrated search goes here
+				print "Integrated Search"
+				MySearch = IntegratedAStarSearch()
+				start_time = time.time()
+				closed_lists, cell_costs, final_path, path_cost, priority_list, heuristic_list = MySearch.Search(start_x,start_y,goal_x, goal_y)
+				elapsed_time = time.time() - start_time
+
+				closed_list = []
+				# Combine closed lists
+				for list in closed_lists:
+					for cell in list:
+						if cell not in closed_list:
+							closed_list.append(cell)
+				nodes_expanded = len(closed_list)
+
 			elif event.key == pygame.K_d:
-				fo = open("diagnostics.txt", "w")
+				fo = open("diagnostics"+str(mapNum)+".txt", "w")
+
 				for num in range (1, 11):
+					print "x is " + str(x)
 					if num < 10:
-						filename = "map5_0"+str(num) #change map prefix to match the series
+						filename = "map"+str(mapNum)+"_0"+str(num)
+						print "filenam is: " + filename #change map prefix to match the series
 					if num == 10:
-						filename = "map5_10" #change here too
-					with open(os.path.join("./gen/",filename),"r") as mapfile: #changed to allow using /maps folder
+						filename = "map"+str(mapNum)+"_10" #change here too
+						print "filenam is: " + filename #
+					with open(os.path.join("./gen",filename),"r") as mapfile: #changed to allow using /maps folder
 						new_start = make_tuple(mapfile.readline())
 						start_x = new_start[0]
 						start_y = new_start[1]
@@ -1014,17 +1034,19 @@ while(running):
 					nodes_expanded = 0
 					GridSurface = drawGrid(GridSurface)
 
-					print "Performing UCS on map: " + filename
+					'''print "Performing UCS on map: " + filename
+					MySearch = UniformCostSearch()
 					start_time = time.time()
-					closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = uniform_cost_search(start_x, start_y, goal_x, goal_y)
+					closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = MySearch.Search(start_x, start_y, goal_x, goal_y)
 					elapsed_time = time.time() - start_time
 					fo.write(str(filename) + "\t" + "UCS" + "\t(None)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem) + "\n")
 
 
 					for choice in range(1, 6):
 						print "Performing A* on map: " + str(filename) + " with Heuristic: " + str(choice)
+						MySearch = AStarSearch()
 						start_time = time.time()
-						closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = a_star_search(start_x, start_y, goal_x, goal_y, choice)
+						closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = MySearch.Search(start_x, start_y, goal_x, goal_y, choice)
 						elapsed_time = time.time() - start_time
 						fo.write(str(filename) + "\t" + "A* " + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
 						fo.write("\n")
@@ -1032,30 +1054,54 @@ while(running):
 					weight = 1.25
 					for choice in range (1, 6):
 					    print "Performing Weighted A* on map: " + filename + " with Heuristic: " + str(choice) + " and weight " + str(weight)
+					    MySearch = WeightedAStarSearch(weight)
 					    start_time = time.time()
-					    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+					    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = MySearch.Search(start_x, start_y, goal_x, goal_y, choice)
 					    elapsed_time = time.time() - start_time
 					    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")" + "\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
 					    fo.write("\n")
 					weight = 2
 					for choice in range (1, 6):
 					    print "Performing Weighted A* on map: " + filename + " with Heuristic: " + str(choice) + " and weight " + str(weight)
+					    MySearch = WeightedAStarSearch(weight)
 					    start_time = time.time()
-					    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = weighted_a_star_search(start_x, start_y, goal_x, goal_y, choice, weight)
+					    closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = MySearch.Search(start_x, start_y, goal_x, goal_y, choice)
 					    elapsed_time = time.time() - start_time
 					    fo.write(str(filename) + "\t" + "A* (Weight " + str(weight) + ")\t" + str(choice) + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
-					    fo.write("\n")
+					    fo.write("\n")'''
 
 					print "Performing Sequential A* on map: " + filename
 					mySearch = SequentialAStarSearch()
 					start_time = time.time()
-					closed_list, cell_costs, final_path, path_cost, priority_list, heuristic_list = mySearch.Search(start_x,start_y,goal_x, goal_y, 1)
-					closed_list = []
+					closed_lists, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = mySearch.Search(start_x,start_y,goal_x, goal_y)
 					elapsed_time = time.time() - start_time
-					fo.write(str(filename) + "\t" + "Sequential Heuristics A*" + "\t(All)\t" + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t")
+					closed_list = []
+					for list in closed_lists:
+						for cell in list:
+							if cell not in closed_list:
+								closed_list.append(cell)
+					nodes_expanded = len(closed_list)
+					fo.write(str(filename) + "\t" + "Sequential Heuristics A*" + "\t(All)\t" + "\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
 					fo.write("\n")
 
+					print "Integrated Search"
+					MySearch = IntegratedAStarSearch()
+					start_time = time.time()
+					closed_lists, cell_costs, final_path, path_cost, priority_list, heuristic_list, mem = MySearch.Search(start_x,start_y,goal_x, goal_y)
+					elapsed_time = time.time() - start_time
+					closed_list = []
+					# Combine closed lists
+					for list in closed_lists:
+						for cell in list:
+							if cell not in closed_list:
+								closed_list.append(cell)
+					nodes_expanded = len(closed_list)
+					fo.write(str(filename) + "\t" + "Integrated Heuristics A*" + "\t(All)\t" + str(elapsed_time*1000) + "\t" + str(path_cost) + "\t" + str(len(closed_list)) + "\t" + str(mem + (4*len(closed_list))) + "\t" + str(mem))
+					fo.write("\n")
 				fo.close()
+				mapNum += 1
+
+
 
 
 		drawScreen(GridSurface,closed_list,final_path,path_cost,nodes_expanded,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
