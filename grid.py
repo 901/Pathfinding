@@ -511,14 +511,7 @@ class SequentialAStarSearch(AStarSearch):
 		priority_list = [dict() for y in range(0,5)]
 		w2 = 1.15 #weight
 		path_cost = 0
-		'''closed_list = {}
-		cost_added = {}
-		final_path = []
-		heuristic_list = {}
-		priority_list = {}
-		closed_list[(start.get_x(),start.get_y())] = None
-		cost_added[(start.get_x(),start.get_y())] = 0
-		'''
+
 		for i in range(0, 5):
 			closed_list[i] = {}
 			cost_added[i] = {}
@@ -547,10 +540,6 @@ class SequentialAStarSearch(AStarSearch):
 				#anchor is a tuple (priority, item)
 
 				temp = fringe[i].getFull() #temp is a tuple (item, priority)
-				#print "x,y of anchor is: ("+str(anchor[1].get_x())+","+str(anchor[1].get_y())+")"
-				#print "x,y of temp is: (" + str(temp[1].get_x()) + ","+str(temp[1].get_y())+")"
-				#print "priority/key of anchor is: " + str(anchor[0])
-				#print "priority/key of temp is: " + str(temp[0])
 
 				#[0] = priority
 				#[1] = item
@@ -678,15 +667,12 @@ class IntegratedAStarSearch(AStarSearch):
 		# g = cost_added[]
 		# h = heuristic
 		anchor = fringe[0].getFull()
+		
 		while not fringe[0].empty():
 			for i in range(1, 5):
 				#anchor is a tuple (priority, item)
 
 				temp = fringe[i].getFull() #temp is a tuple (item, priority)
-				#print "x,y of anchor is: ("+str(anchor[1].get_x())+","+str(anchor[1].get_y())+")"
-				#print "x,y of temp is: (" + str(temp[1].get_x()) + ","+str(temp[1].get_y())+")"
-				#print "priority/key of anchor is: " + str(anchor[0])
-				#print "priority/key of temp is: " + str(temp[0])
 
 				#[0] = priority
 				#[1] = item
@@ -734,7 +720,7 @@ class IntegratedAStarSearch(AStarSearch):
 									heuristic_list[0][next] = myheuristic
 									priority_list[0][next] = priority0
 									fringe[0].put(priority0, Coordinate(next[0],next[1],temp[1]))
-									#closed_list_anchor[next] = temp[1]
+									closed_list_anchor[next] = temp[1]
 									if next not in closed_list:
 										for j in range(1,5):
 											myheuristic = self.heuristic(next[0], next[1], goalx, goaly, i+1)
@@ -744,6 +730,7 @@ class IntegratedAStarSearch(AStarSearch):
 												priority_list[i][next] = priority
 												fringe[i].put(priority, Coordinate(next[0],next[1],temp[1]))
 												closed_list[next] = temp[1]
+						#closed_list[temp[1]] = temp[1]
 
 				else:
 					#print "------------- Reached the else condition, using fringe[0] ---------------"
@@ -797,6 +784,7 @@ class IntegratedAStarSearch(AStarSearch):
 												priority_list[i][next] = priority
 												fringe[i].put(priority, Coordinate(next[0],next[1],anchor[1]))
 												closed_list_anchor[next] = anchor[1]
+						#closed_list[anchor[1]] = anchor[1]
 					anchor = fringe[0].getFull()
 
 
@@ -966,11 +954,11 @@ while(running):
 				
 				closed_list = []
 				# Combine closed lists
-				for list in closed_lists:
+				'''for list in closed_lists:
 					for cell in list:
 						if cell not in closed_list:
 							closed_list.append(cell)
-				nodes_expanded = len(closed_list)
+				nodes_expanded = len(closed_list)'''
 				
 			elif event.key == pygame.K_i:		# -------- Integrated A* Search --------
 				#integrated search goes here
@@ -981,12 +969,12 @@ while(running):
 				elapsed_time = time.time() - start_time
 				
 				closed_list = []
-				# Combine closed lists
+				'''# Combine closed lists
 				for list in closed_lists:
 					for cell in list:
 						if cell not in closed_list:
 							closed_list.append(cell)
-				nodes_expanded = len(closed_list)
+				nodes_expanded = len(closed_list)'''
 
 
 		drawScreen(GridSurface,closed_list,final_path,path_cost,nodes_expanded,drawmode,elapsed_time,cell_costs, priority_list, heuristic_list)
